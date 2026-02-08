@@ -129,51 +129,53 @@ const Projects = ({ featuredProjects, allProjects }) => {
             {displayedProjects.map((project) => (
               <div
                 key={project.id}
-                className="bg-white rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-l-4 border-teal-600"
+                className="group relative bg-white rounded-lg p-6 shadow-sm hover:shadow-xl transition-all duration-500 border-l-4 border-teal-600 hover:border-cyan-600 overflow-hidden"
               >
-                <div className="mb-3">
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                    {project.title}
-                  </h4>
-                  <span className="inline-block px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-medium">
-                    {project.category}
-                  </span>
-                </div>
-                
-                <p className="text-gray-700 text-sm mb-4 leading-relaxed">
-                  {project.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tech.slice(0, 3).map((tech, idx) => (
-                    <Badge
-                      key={idx}
-                      variant="secondary"
-                      className="bg-gray-100 text-gray-700 text-xs"
-                    >
-                      {tech}
-                    </Badge>
-                  ))}
-                  {project.tech.length > 3 && (
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 text-xs">
-                      +{project.tech.length - 3}
-                    </Badge>
-                  )}
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative z-10">
+                  <div className="mb-3">
+                    <h4 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">
+                      {project.title}
+                    </h4>
+                    <span className="inline-block px-3 py-1 bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-700 rounded-full text-xs font-medium border border-teal-200">
+                      {project.category}
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-700 text-sm mb-4 leading-relaxed">
+                    {project.description}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.tech.slice(0, 3).map((tech, idx) => (
+                      <Badge
+                        key={idx}
+                        className="bg-gray-100 text-gray-700 text-xs hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                      >
+                        {tech}
+                      </Badge>
+                    ))}
+                    {project.tech.length > 3 && (
+                      <Badge className="bg-gray-100 text-gray-700 text-xs">
+                        +{project.tech.length - 3}
+                      </Badge>
+                    )}
+                  </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500">{project.date}</span>
-                  {project.github !== '#' && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-teal-600 hover:text-teal-700 transition-colors"
-                    >
-                      <Github size={16} />
-                      <span>Code</span>
-                    </a>
-                  )}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">{project.date}</span>
+                    {project.github !== '#' && (
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-teal-600 hover:text-teal-700 transition-colors group/link"
+                      >
+                        <Github size={16} className="group-hover/link:rotate-12 transition-transform" />
+                        <span>Code</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
