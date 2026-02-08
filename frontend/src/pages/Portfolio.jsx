@@ -71,6 +71,7 @@ const Portfolio = () => {
         </section>
       </main>
       <Footer data={portfolioData.hero.contact} />
+      <Toaster />
     </div>
   );
 };
