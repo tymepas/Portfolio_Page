@@ -179,9 +179,18 @@ export const portfolioData = {
       id: 5,
       title: "Python Data Cleaning & Visualization",
       description: "Real-world Python projects focused on data cleaning, EDA, and visualization across HR, Healthcare domains. Improved data accuracy by 20%.",
-      category: "Data Analytics",
+      category: "Visualization",
       tech: ["Python", "Pandas", "Matplotlib", "Seaborn"],
       github: "https://github.com/tymepas/Python-Data-Cleaning-and-Visualization",
+      date: "2025"
+    },
+    {
+      id: 17,
+      title: "Power BI Dashboard Portfolio",
+      description: "Interactive Power BI dashboards with data modeling, DAX calculations, geospatial analysis, and advanced visualizations.",
+      category: "Visualization",
+      tech: ["Power BI", "DAX", "Data Modeling", "SQL"],
+      github: "https://github.com/tymepas/-Power-BI-Projects-Portfolio",
       date: "2025"
     },
     {
