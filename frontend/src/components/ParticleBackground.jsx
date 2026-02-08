@@ -35,8 +35,11 @@ const ParticleBackground = () => {
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(20, 184, 166, 0.6)';
+        ctx.fillStyle = 'rgba(20, 184, 166, 0.8)';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(20, 184, 166, 0.5)';
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
     }
 
