@@ -41,7 +41,7 @@ const Hero = ({ data }) => {
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition-opacity duration-300 animate-pulse-slow"></div>
               <img
-                src="https://customer-assets.emergentagent.com/job_code-showcase-498/artifacts/3enkcsfs_ProfilePic.jpeg"
+                src="https://customer-assets.emergentagent.com/job_code-showcase-498/artifacts/dcnqtz0d_3enkcsfs_ProfilePic.jpeg"
                 alt="Garvit Mathur"
                 className="relative w-40 h-40 rounded-full object-cover border-4 border-teal-400 shadow-2xl shadow-teal-500/50 transform group-hover:scale-105 transition-transform duration-300"
               />
