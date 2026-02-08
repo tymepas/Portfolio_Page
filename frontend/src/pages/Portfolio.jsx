@@ -9,6 +9,7 @@ import Certifications from '../components/Certifications';
 import Education from '../components/Education';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
+import ParticleBackground from '../components/ParticleBackground';
 import { Toaster } from '../components/ui/toaster';
 import { portfolioData } from '../data/mock';
 
@@ -39,9 +40,10 @@ const Portfolio = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      <ParticleBackground />
       <Header activeSection={activeSection} />
-      <main>
+      <main className="relative z-10">
         <section id="home">
           <Hero data={portfolioData.hero} />
         </section>
