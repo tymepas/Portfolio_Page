@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Badge } from './ui/badge';
+import { Code2, Database, Brain, Wrench, Target } from 'lucide-react';
 
 const Skills = ({ data }) => {
   const { technical, dataScience, aiTools, tools, domains } = data;
