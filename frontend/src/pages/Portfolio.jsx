@@ -40,7 +40,7 @@ const Portfolio = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 relative">
       <ParticleBackground />
       <Header activeSection={activeSection} />
       <main className="relative z-10">
