@@ -30,13 +30,19 @@ const Skills = ({ data }) => {
   );
 
   return (
-    <div className="py-24 px-6 lg:px-12 bg-gray-50">
-      <div className="max-w-6xl mx-auto">
+    <div className="relative py-24 px-6 lg:px-12 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-10 right-0 w-96 h-96 bg-gradient-to-bl from-teal-500/10 to-transparent rounded-full blur-3xl"></div>
+      
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="mb-16">
-          <h2 className="text-5xl md:text-6xl font-light text-gray-900 mb-4">
-            Skills & Expertise
-          </h2>
-          <div className="w-24 h-1 bg-teal-600"></div>
+          <div className="flex items-center gap-3 mb-4">
+            <Brain className="text-teal-600 animate-pulse" size={32} />
+            <h2 className="text-5xl md:text-6xl font-light text-gray-900">
+              Skills & Expertise
+            </h2>
+          </div>
+          <div className="w-24 h-1 bg-gradient-to-r from-teal-600 to-cyan-600"></div>
         </div>
 
         {/* Tab Navigation */}
