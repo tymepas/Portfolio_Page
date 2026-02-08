@@ -61,12 +61,16 @@ const ParticleBackground = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < connectionDistance) {
+            const opacity = (1 - distance / connectionDistance) * 0.5;
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(20, 184, 166, ${1 - distance / connectionDistance})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(20, 184, 166, ${opacity})`;
+            ctx.lineWidth = 1;
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = 'rgba(20, 184, 166, 0.3)';
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
+            ctx.shadowBlur = 0;
           }
         }
       });
