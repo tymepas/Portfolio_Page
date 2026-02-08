@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Github, Filter } from 'lucide-react';
+import { ExternalLink, Github, Filter, Sparkles, Zap } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 
