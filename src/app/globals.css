@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. A light, neutral foundation with ink typography and a single
+ * restrained teal accent. Utilities are generated from these, e.g. `bg-paper`,
+ * `text-ink`, `text-muted`, `border-line`, `text-accent`.
+ */
+@theme {
+  --color-paper: #f8f7f3;
+  --color-surface: #ffffff;
+  --color-ink: #15181c;
+  --color-muted: #555b63;
+  --color-subtle: #686e76;
+  --color-line: #e2e0d8;
+  --color-line-strong: #c9c6bb;
+  --color-accent: #0f6e66;
+  --color-accent-strong: #0a524c;
+  --color-accent-soft: #e3efec;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Keep in-page anchors clear of the sticky header. */
+  [id] {
+    scroll-margin-top: 5.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
