@@ -1,0 +1,270 @@
+@import "tailwindcss";
+@import "../styles/interface.css";
+@import "../styles/hero.css";
+@import "../styles/visuals.css";
+@import "../styles/case-study.css";
+
+/*
+ * Design tokens: an AI engineering lab.
+ *
+ * Near-black surfaces lift towards midnight blue; type is high-contrast white
+ * with muted grey for secondary information. The two accents carry meaning:
+ * teal marks data, deterministic steps, and interaction; violet marks
+ * model-driven steps. Raw values live on :root so plain CSS can use them, and
+ * @theme maps them to Tailwind utilities (bg-surface, text-muted, border-line,
+ * text-teal, and so on).
+ */
+:root {
+  color-scheme: dark;
+
+  /* Backgrounds and elevated surfaces, from the page base upwards */
+  --bg: #05070b;
+  --bg-raised: #080c13;
+  --surface: #0b111b;
+  --surface-2: #101826;
+  --surface-3: #162133;
+  --midnight: #0a1430;
+
+  /* Borders */
+  --line: rgb(148 163 184 / 0.12);
+  --line-strong: rgb(148 163 184 / 0.22);
+  --line-bright: rgb(203 213 225 / 0.42);
+
+  /* Typography */
+  --fg: #f2f5f9;
+  --fg-muted: #a1abbb;
+  --fg-subtle: #8590a3;
+
+  /* Accents */
+  --teal: #38e1c8;
+  --teal-strong: #8af3e4;
+  --teal-deep: #0e5f55;
+  --violet: #a68cff;
+  --violet-strong: #c7b8ff;
+  --violet-deep: #3f3187;
+  --on-accent: #03130f;
+
+  /* Interactive states and focus */
+  --hover-wash: rgb(255 255 255 / 0.045);
+  --press-scale: 0.97;
+  --focus-ring: #7af2e0;
+
+  /* Spacing */
+  --gutter: 1.25rem;
+  --section-space: 6rem;
+
+  /* Shadows */
+  --shadow-card: inset 0 1px 0 0 rgb(255 255 255 / 0.04), 0 24px 48px -32px rgb(0 0 0 / 0.8);
+  --shadow-lift: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 32px 64px -32px rgb(0 0 0 / 0.9);
+  --shadow-accent: 0 0 0 1px rgb(56 225 200 / 0.35), 0 12px 32px -12px rgb(56 225 200 / 0.45);
+
+  /* Animation timings */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 160ms;
+  --dur-base: 280ms;
+  --dur-slow: 640ms;
+  --dur-reveal: 900ms;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gutter: 2rem;
+    --section-space: 8rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 3rem;
+    --section-space: 8.5rem;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-midnight: var(--midnight);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-bright: var(--line-bright);
+  --color-fg: var(--fg);
+  --color-muted: var(--fg-muted);
+  --color-subtle: var(--fg-subtle);
+  --color-teal: var(--teal);
+  --color-teal-strong: var(--teal-strong);
+  --color-teal-deep: var(--teal-deep);
+  --color-violet: var(--violet);
+  --color-violet-strong: var(--violet-strong);
+  --color-violet-deep: var(--violet-deep);
+  --color-on-accent: var(--on-accent);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-hubot-sans), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale. Each step sets size, leading, and tracking together. */
+  --text-hero: clamp(2.6rem, 1.2rem + 5vw, 5.75rem);
+  --text-hero--line-height: 0.95;
+  --text-hero--letter-spacing: -0.032em;
+  --text-display: clamp(2.35rem, 1.45rem + 3.3vw, 4.75rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.04em;
+  --text-title: clamp(2rem, 1.35rem + 2.2vw, 3.4rem);
+  --text-title--line-height: 1;
+  --text-title--letter-spacing: -0.035em;
+  --text-heading: clamp(1.5rem, 1.2rem + 0.9vw, 2.1rem);
+  --text-heading--line-height: 1.08;
+  --text-heading--letter-spacing: -0.025em;
+  --text-lede: clamp(1.0625rem, 0.99rem + 0.3vw, 1.25rem);
+  --text-lede--line-height: 1.65;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.14em;
+
+  --radius-chip: 0.5rem;
+  --radius-card: 1.25rem;
+  --radius-panel: 1.75rem;
+
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--bg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+  }
+
+  /* A fixed, barely visible grain behind all content softens gradient banding. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background-color: rgb(56 225 200 / 0.3);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Sections and project cards receive focus after in-page navigation; their headings are announced. */
+  :is(main, section, article)[tabindex="-1"]:focus {
+    outline: none;
+  }
+
+  /* Keep in-page anchors clear of the sticky header. */
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+}
+
+/* Fine technical grid. Tune with --grid-size and --grid-line. */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line, rgb(148 163 184 / 0.07)) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line, rgb(148 163 184 / 0.07)) 1px, transparent 1px);
+  background-size: var(--grid-size, 64px) var(--grid-size, 64px);
+}
+
+/* A dot at every grid intersection, for drawing-board surfaces. */
+@utility bg-dots {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    var(--dot-color, rgb(148 163 184 / 0.22)) 1px,
+    transparent 1.5px
+  );
+  background-size: var(--grid-size, 24px) var(--grid-size, 24px);
+}
+
+@utility text-balance-safe {
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+/*
+ * Scroll reveals. Server-rendered content is always visible. After hydration,
+ * the interaction layer marks elements that are still below the fold as
+ * "hidden" and flips them to "shown" when they enter the viewport. Elements
+ * already on screen are marked "visible" and never animate.
+ */
+@layer components {
+  [data-reveal-state="hidden"] {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+
+  [data-reveal-state="shown"] {
+    transition:
+      opacity var(--dur-reveal) var(--ease-out),
+      transform var(--dur-reveal) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal="fade"][data-reveal-state="hidden"] {
+    transform: none;
+  }
+
+  [data-reveal="line"] {
+    transform-origin: left center;
+  }
+
+  [data-reveal="line"][data-reveal-state="hidden"] {
+    opacity: 1;
+    transform: scaleX(0);
+  }
+
+  [data-reveal="line"][data-reveal-state="shown"] {
+    transition-duration: 1200ms;
+  }
+}
+
+@media print {
+  [data-reveal-state] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/*
+ * Reduced motion: every animation finishes instantly on its final frame and
+ * transitions are immediate. Components also remove their decorative loops
+ * explicitly, so nothing depends on this safety net alone.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+  }
+}
