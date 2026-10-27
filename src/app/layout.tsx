@@ -42,8 +42,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // globals.css scrolls smoothly; this attribute tells Next.js to turn that off while
+    // it scrolls a newly opened page to the top, so the scroll isn't animated or cut short.
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${hubotSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

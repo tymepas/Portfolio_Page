@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { ButtonLink } from "@/components/button-link";
 import { ProjectDiagramView, ProjectScreenshotFigure } from "@/components/visuals/project-visual";
 import type { Project, ProjectLink } from "@/content/projects";
 
@@ -125,10 +126,19 @@ export function ProjectStack({ project, className = "mt-6" }: { project: Project
   );
 }
 
-/** A live app or a static export gets the button; the repository is a text link. */
+/**
+ * A case study leads; a live app or a static export gets the secondary
+ * button; the repository is a text link.
+ */
 export function ProjectLinks({ project, className = "mt-8" }: { project: Project; className?: string }) {
   return (
     <div className={`flex flex-wrap items-center gap-x-6 gap-y-3 ${className}`}>
+      {project.caseStudy ? (
+        <ButtonLink href={project.caseStudy} className="btn-compact">
+          Read the case study
+          <span className="sr-only">: {project.title}</span>
+        </ButtonLink>
+      ) : null}
       {project.demo ? (
         <ExternalLink link={project.demo} projectTitle={project.title} prominent />
       ) : null}
@@ -158,7 +168,7 @@ export function ProjectTitle({ project, position }: ProjectHeaderProps) {
       <div className="flex items-baseline justify-between gap-4 font-mono text-label uppercase">
         <span className="text-muted">{project.category}</span>
         {position ? (
-          <span aria-hidden="true" className="text-subtle">
+          <span aria-hidden="true" className="shrink-0 whitespace-nowrap text-subtle">
             <span className="text-teal">{String(position.index + 1).padStart(2, "0")}</span> /{" "}
             {String(position.total).padStart(2, "0")}
           </span>

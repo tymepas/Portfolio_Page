@@ -3,12 +3,12 @@
 Personal portfolio for Garvit Mathur, presenting work across AI-powered
 applications, data analytics, and product-focused software development.
 
-The site is a single, content-driven homepage with a dark "AI engineering lab"
-visual identity: an animated system map, a conceptual workflow, and an
-architecture diagram for each project. Every project, credential, and profile
-detail is kept in typed local data files and is checked against its source
-(project repositories, live demo URLs, or original documents) before it is
-published.
+The site is a content-driven homepage with a dark "AI engineering lab" visual
+identity (an animated system map, a conceptual workflow, and an architecture
+diagram for each project), plus in-depth case studies for Verdict and AuditFlow.
+Every project, credential, and profile detail is kept in typed local data files
+and is checked against its source (project repositories, live demo URLs, or
+original documents) before it is published.
 
 ## Technology Stack
 
@@ -65,17 +65,20 @@ src/
 ├── app/
 │   ├── layout.tsx       Root layout: fonts, metadata, header, footer
 │   ├── page.tsx         Homepage composition
+│   ├── projects/        Case studies: /projects/verdict and /projects/auditflow
 │   └── globals.css      Design tokens, Tailwind theme, base styles, reveals
 ├── components/          Homepage sections and shared UI
-│   └── visuals/         System map, conceptual workflow, project diagrams
+│   ├── case-study/      Case-study hero, numbered sections, decision cards, spec sheet
+│   └── visuals/         System map, workflow, project diagrams, case-study figures
 ├── content/
 │   ├── site.ts          Profile, hero copy, navigation, focus areas, contact links
 │   ├── projects.ts      Projects, their architecture diagrams, and screenshots
+│   ├── case-studies/    Case-study content, each claim tied to a repository file
 │   ├── credentials.ts   Credentials and professional development
 │   ├── workflow.ts      The conceptual workflow shown in the hero
 │   └── commands.ts      Command palette entries, derived from the files above
 ├── lib/                 Small browser helpers
-└── styles/              Component styles: interface, hero, and visuals
+└── styles/              Component styles: interface, hero, visuals, case studies
 ```
 
 ## Design System
@@ -103,7 +106,13 @@ utilities with `@theme inline` (for example `bg-surface`, `text-muted`,
 - **Other client components:** the header shell (reading progress), the
   desktop navigation (current-section indicator), the mobile menu, the command
   palette (`Ctrl+K` / `Cmd+K`), the system map's pointer response, the report
-  page viewer, and the copy-email button.
+  page viewer, the copy-email button, and two case-study figures: Verdict's
+  rule explorer (runs the app's scoring rule on ratings the reader picks; no
+  model call) and AuditFlow's ticket-scenario picker.
+- **Between pages.** Cache Components keep visited pages in the DOM, hidden, so
+  element IDs must be unique across the whole site. `data-scroll-behavior` on
+  `<html>` lets Next.js scroll a newly opened page to its top instantly, and the
+  interaction layer restores each page's scroll position on back and forward.
 - **Reduced motion.** With `prefers-reduced-motion`, entrances, loops, parallax,
   and tilt are removed; all content and interactions remain.
 
@@ -125,6 +134,12 @@ Portfolio content lives in `src/content/`. When adding or changing entries:
   or PDF export pages, labelled as static. Link the PDF export with `report`;
   never describe it as an interactive or hosted report, and keep large source
   files such as `.pbix` out of this repository.
+- Case studies (`content/case-studies/`) cite the code they describe. Source
+  links point at the commit recorded in `repository.commit`; when the project
+  changes, re-check the claims, then update `commit` and `checked`. Mark each
+  reason as documented (written down in the repository) or inferred, each next
+  step as from the project's roadmap or proposed, and credit collaborators'
+  work to them.
 
 Contributor and agent guidelines are in [`CLAUDE.md`](CLAUDE.md) and
 [`AGENTS.md`](AGENTS.md).
@@ -145,10 +160,13 @@ Implemented:
   Indicators dashboard with its data pipeline
 - Credentials timeline and contact section
 - Command palette for quick navigation
+- Case studies for Verdict and AuditFlow, linked from their project cards and
+  the command palette, with architecture figures drawn from the code and every
+  claim linked to the repository
 
 Planned for later milestones:
 
-- Detailed project case studies
+- Case studies for other projects, once their details are verified
 - Technical skills
 - Professional experience
 - About and education

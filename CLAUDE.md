@@ -127,9 +127,10 @@ Completed:
 - Project README
 - AI engineering lab redesign: dark design tokens, kinetic hero, system map, conceptual workflow, project architecture diagrams drawn from the repositories, analytics band, credentials timeline, contact section, and command palette (CSS-first motion, no animation library)
 - AuditFlow and WriteWise highlights corrected after checking the current code (Zoho Desk review flow; prompt-level job-email rule)
+- Case studies at /projects/verdict and /projects/auditflow: claims linked to source files at pinned commits, documented versus inferred rationale, AuditFlow contributions split by commit history
 
 Next, one milestone at a time:
-- Detailed project case studies
+- Case studies for other projects, after their details are verified
 - Technical skills
 - Professional experience, only after Garvit confirms the unresolved employment dates, internship details, and resume metrics
 - About, education, and resume link

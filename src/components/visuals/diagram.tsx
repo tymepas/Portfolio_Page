@@ -20,11 +20,14 @@ export function DiagramFrame({
   figure,
   title,
   children,
+  note = "Diagram from the code",
   className = "",
 }: {
   figure: string;
   title: string;
   children: ReactNode;
+  /** What kind of figure this is, shown at the right of the caption. */
+  note?: string;
   className?: string;
 }) {
   return (
@@ -35,7 +38,7 @@ export function DiagramFrame({
           <span aria-hidden="true"> · </span>
           <span className="normal-case tracking-normal text-muted">{title}</span>
         </span>
-        <span className="hidden shrink-0 sm:inline">Diagram from the code</span>
+        <span className="hidden shrink-0 sm:inline">{note}</span>
       </figcaption>
       <div className="diagram-body">{children}</div>
     </figure>
@@ -62,7 +65,11 @@ function StepText({ step }: { step: DiagramStep }) {
     <div className="min-w-0">
       <p className="flow-label">
         {step.label}
-        <span className="flow-kind">{kindLabel[step.kind]}</span>
+        <span className="flow-kind">
+          {kindLabel[step.kind]}
+          {/* A narrow column breaks it before the plus: "Model / + code". */}
+          {step.alsoKind ? <> +&nbsp;{kindLabel[step.alsoKind].toLowerCase()}</> : null}
+        </span>
       </p>
       <p className="flow-detail">{step.detail}</p>
     </div>

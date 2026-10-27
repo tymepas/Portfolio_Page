@@ -1,8 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { focusSection } from "@/lib/focus-section";
+
+const pageKey = () => window.location.pathname + window.location.search;
 
 /**
  * Progressive enhancement for server-rendered markup. Server Components opt in
@@ -15,10 +17,50 @@ import { focusSection } from "@/lib/focus-section";
  * - `data-spotlight`: exposes the pointer position as `--mx`/`--my` (px) and
  *   `--tx`/`--ty` (-0.5 to 0.5) for hover lighting and tilt.
  *
- * It also moves focus to the destination of same-page links.
+ * It also moves focus to the destination of in-page links, including links
+ * from another page to a section, and returns the window to where each page
+ * was left on back and forward navigation.
  */
 export function InteractionLayer() {
   const pathname = usePathname();
+  const scrollPositions = useRef(new Map<string, number>());
+  const currentPage = useRef<string | null>(null);
+  const traversing = useRef(false);
+
+  // Remember each page's scroll position. Hidden routes keep their DOM, but the
+  // window's scroll offset otherwise carries over from the page being left.
+  useEffect(() => {
+    let frame = 0;
+    const save = () => {
+      frame = 0;
+      if (!traversing.current) scrollPositions.current.set(pageKey(), window.scrollY);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(save);
+    };
+    // A hash-only step, such as back from an in-page link, stays on the page.
+    const onPopState = () => {
+      traversing.current = pageKey() !== currentPage.current;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
+
+  // Back or forward to another page: restore that page's position before the
+  // reveal scan below measures what is on screen.
+  useEffect(() => {
+    const restore = traversing.current;
+    traversing.current = false;
+    currentPage.current = pageKey();
+    const top = scrollPositions.current.get(currentPage.current);
+    if (restore && top !== undefined) window.scrollTo({ top, behavior: "instant" });
+  }, [pathname]);
 
   // Scroll reveals. Re-scanned when the route changes.
   useEffect(() => {
@@ -147,6 +189,12 @@ export function InteractionLayer() {
       onLeave();
     };
   }, []);
+
+  // Arriving from another page at a section (a case study's link to /#work, say):
+  // focus follows the scroll there, as it does for same-page links below.
+  useEffect(() => {
+    if (window.location.hash) focusSection(window.location.hash);
+  }, [pathname]);
 
   // Same-page links: follow the scroll with focus.
   useEffect(() => {

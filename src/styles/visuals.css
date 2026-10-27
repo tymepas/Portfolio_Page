@@ -198,35 +198,36 @@
     background: var(--fg);
   }
 
-  .flow-step[data-kind="model"] .flow-marker {
+  /* `.kind-scope` lets other diagrams (the case studies) reuse these markers. */
+  :is(.flow-step, .kind-scope)[data-kind="model"] .flow-marker {
     background: var(--violet);
     box-shadow: 0 0 10px rgb(166 140 255 / 0.65);
   }
 
-  .flow-step[data-kind="rule"] .flow-marker {
+  :is(.flow-step, .kind-scope)[data-kind="rule"] .flow-marker {
     border-radius: 1.5px;
     background: var(--teal);
     box-shadow: 0 0 10px rgb(56 225 200 / 0.5);
     transform: rotate(45deg);
   }
 
-  .flow-step[data-kind="data"] .flow-marker {
+  :is(.flow-step, .kind-scope)[data-kind="data"] .flow-marker {
     border-radius: 2px;
     background: var(--fg-muted);
   }
 
-  .flow-step[data-kind="service"] .flow-marker {
+  :is(.flow-step, .kind-scope)[data-kind="service"] .flow-marker {
     border-radius: 2px;
     background: transparent;
     box-shadow: inset 0 0 0 1.5px var(--fg-muted);
   }
 
-  .flow-step[data-kind="human"] .flow-marker {
+  :is(.flow-step, .kind-scope)[data-kind="human"] .flow-marker {
     background: transparent;
     box-shadow: inset 0 0 0 1.5px var(--fg);
   }
 
-  .flow-step[data-kind="output"] .flow-marker {
+  :is(.flow-step, .kind-scope)[data-kind="output"] .flow-marker {
     box-shadow: 0 0 0 3px rgb(255 255 255 / 0.12);
   }
 
@@ -273,12 +274,12 @@
     color: var(--fg-subtle);
   }
 
-  .flow-step[data-kind="model"] .flow-kind {
+  :is(.flow-step, .kind-scope)[data-kind="model"] .flow-kind {
     border-color: rgb(166 140 255 / 0.3);
     color: var(--violet-strong);
   }
 
-  .flow-step[data-kind="rule"] .flow-kind {
+  :is(.flow-step, .kind-scope)[data-kind="rule"] .flow-kind {
     border-color: rgb(56 225 200 / 0.28);
     color: var(--teal-strong);
   }

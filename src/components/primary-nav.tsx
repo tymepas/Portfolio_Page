@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site";
 
@@ -16,6 +17,8 @@ export function PrimaryNav({ items, githubUrl }: { items: NavItem[]; githubUrl: 
   const [active, setActive] = useState<string | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  // The header outlives page changes, so the sections are looked up again on each route.
+  const pathname = usePathname();
 
   // A section is "current" while it crosses a thin band just above mid-screen.
   useEffect(() => {
@@ -37,8 +40,11 @@ export function PrimaryNav({ items, githubUrl }: { items: NavItem[]; githubUrl: 
       { rootMargin: "-38% 0px -58% 0px" },
     );
     sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, [items]);
+    return () => {
+      observer.disconnect();
+      setActive(null);
+    };
+  }, [items, pathname]);
 
   useEffect(() => {
     const track = trackRef.current;

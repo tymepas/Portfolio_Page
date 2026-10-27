@@ -19,6 +19,8 @@ export type DiagramStep = {
   label: string;
   detail: string;
   kind: DiagramStepKind;
+  /** A second kind of work in the same step, such as code checks inside a model step. */
+  alsoKind?: DiagramStepKind;
 };
 
 /**
@@ -80,6 +82,8 @@ export type Project = {
   demo?: ProjectLink;
   /** A static export, such as a PDF. Never use it for a hosted or interactive report. */
   report?: ProjectLink;
+  /** Path of the project's case-study page on this site, when it has one. */
+  caseStudy?: string;
   diagram?: ProjectDiagram;
   screenshot?: ProjectScreenshot;
   preview?: ReportPreview;
@@ -107,6 +111,7 @@ export const featuredProjects: Project[] = [
       label: "Live app",
       href: "https://verdictai-fawn.vercel.app/",
     },
+    caseStudy: "/projects/verdict",
     // Sources: app/api/[[...path]]/route.js, lib/services/openai/openAIAnalysisService.ts,
     // openAIAnalysisSchema.ts, and computeVerdict in lib/services/analysisService.ts.
     diagram: {
@@ -157,15 +162,18 @@ export const featuredProjects: Project[] = [
   {
     slug: "auditflow",
     title: "AuditFlow",
-    category: "Multi-agent AI workflow",
+    category: "AI-assisted audit evidence workflow",
     summary:
-      "Audit-evidence review for finance teams. Five agents compare invoices, purchase orders, receipts, and bank and ledger records, flag exceptions, and compile a review-ready workpaper.",
+      "Audit-evidence review for finance teams. Claude reads and cross-checks invoices, purchase orders, receipts, and bank and ledger records; code routes every finding to a person and compiles the review-ready workpaper.",
     highlights: [
-      "Intake, Evidence, Anomaly, Decision, and Workpaper agents running on Anthropic Claude",
+      // Checked 28 Oct 2026 against agents/*_agent.py at commit 2c9abd4: decision_agent.py
+      // sets the action in code and workpaper_agent.py builds rows, totals, and finding IDs;
+      // their model calls only write the reason and the row labels.
+      "Intake, Evidence, and Anomaly run on Anthropic Claude; Decision and Workpaper set their outcomes in code, and the model writes only the wording",
       // Verified 27 Oct 2026 against the current code, not the README (which still describes
       // the older /feedback decision flow): frontend/lib/zoho-desk.ts sends one finding at a
       // time to POST /send-to-zoho-desk, and no frontend file calls /feedback (commit 2fc2764).
-      "Findings are routed for human review, and reviewers can raise each finding as a Zoho Desk ticket",
+      "Reviewers can raise each finding as a Zoho Desk ticket, with its supporting files attached",
       "Tested on 14 synthetic benchmark cases; some cases varied between runs, and the current code has not been fully re-measured",
     ],
     stack: ["Next.js", "TypeScript", "Python", "FastAPI", "Anthropic Claude"],
@@ -180,10 +188,13 @@ export const featuredProjects: Project[] = [
       label: "Live app",
       href: "https://auditflow-kohl.vercel.app/",
     },
+    caseStudy: "/projects/auditflow",
     // Sources: agents/*_agent.py (run in sequence by run_full_pipeline in workpaper_agent.py).
     // The Decision and Workpaper steps set their outcomes in code; the model writes the wording.
+    // Anomaly is model plus code: anomaly_agent.py puts a subtotal-plus-tax check in the prompt,
+    // and presence_check.py replaces the model's missing PO and missing receipt answers.
     diagram: {
-      title: "Five agents in sequence, then a person",
+      title: "Five stages in sequence, then a person",
       layout: "rail",
       inputs: ["Invoices", "Receipts", "Purchase orders", "Bank statements", "Ledger entries"],
       steps: [
@@ -199,8 +210,9 @@ export const featuredProjects: Project[] = [
         },
         {
           kind: "model",
+          alsoKind: "rule",
           label: "Anomaly",
-          detail: "Checks eight issue types, such as duplicate invoices",
+          detail: "Checks eight issue types; code does the tax arithmetic and flags missing POs and receipts",
         },
         {
           kind: "rule",

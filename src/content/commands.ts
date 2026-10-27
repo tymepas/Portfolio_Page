@@ -6,7 +6,7 @@ import { contactLinks, navItems } from "@/content/site";
 export type PaletteCommand = {
   id: string;
   label: string;
-  group: "Sections" | "Projects" | "Project links" | "Contact";
+  group: "Sections" | "Projects" | "Case studies" | "Project links" | "Contact";
   href: string;
   hint?: string;
   external?: boolean;
@@ -38,6 +38,22 @@ export function getPaletteCommands(): PaletteCommand[] {
     hint: project.collaborators?.length ? `${project.category} · team project` : project.category,
   }));
 
+  const caseStudies: PaletteCommand[] = projects.flatMap((project) =>
+    project.caseStudy
+      ? [
+          {
+            id: `case-study:${project.slug}`,
+            label: `${project.title} case study`,
+            group: "Case studies" as const,
+            href: project.caseStudy,
+            hint: project.collaborators?.length
+              ? "Architecture, decisions, team roles"
+              : "Architecture and decisions",
+          },
+        ]
+      : [],
+  );
+
   // Live apps, static report exports, and repositories, in that order per project.
   const projectLinks: PaletteCommand[] = projects.flatMap((project) =>
     [
@@ -64,5 +80,5 @@ export function getPaletteCommands(): PaletteCommand[] {
     external: link.href.startsWith("http"),
   }));
 
-  return [...sections, ...projectEntries, ...projectLinks, ...contact];
+  return [...sections, ...projectEntries, ...caseStudies, ...projectLinks, ...contact];
 }
