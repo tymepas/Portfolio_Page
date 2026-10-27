@@ -1,0 +1,776 @@
+/*
+ * Hero: kinetic headline, atmosphere, the AI system map, and the conceptual
+ * workflow. Entrance animations are plain CSS so they start on first paint;
+ * every element's resting style is its final, fully visible state.
+ */
+
+@layer components {
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-top: clamp(2rem, 5vw, 4rem);
+  }
+
+  .hero-backdrop {
+    position: absolute;
+    inset: -4rem 0 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 55% 45% at 80% 52%, rgb(56 225 200 / 0.09), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 12% 78%, rgb(166 140 255 / 0.08), transparent 70%),
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgb(10 20 48 / 0.95), transparent 75%);
+  }
+
+  /* Drawing-board grid, strongest behind the system map. */
+  .hero-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgb(148 163 184 / 0.075) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(148 163 184 / 0.075) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 64% 46%, #000 20%, transparent 78%);
+    mask-image: radial-gradient(ellipse 70% 60% at 64% 46%, #000 20%, transparent 78%);
+  }
+
+  .hero-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 30%;
+    background: linear-gradient(to bottom, transparent, var(--bg));
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.4rem 0.95rem 0.4rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgb(11 17 27 / 0.6);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    animation: rise-in 900ms var(--ease-out) backwards;
+  }
+
+  .hero-beacon {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    border-radius: 1px;
+    background: var(--teal);
+    transform: rotate(45deg);
+  }
+
+  /* On phones the role and location wrap, so drop the pill and keep the marker. */
+  @media (max-width: 639px) {
+    .hero-eyebrow {
+      gap: 0.5rem;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+  }
+
+  /* Kinetic headline --------------------------------------------------------- */
+
+  .kinetic {
+    font-stretch: 106%;
+    word-spacing: 0.06em;
+    text-wrap: balance;
+  }
+
+  /* Each word rises out of its own mask; padding keeps descenders unclipped. */
+  .kinetic-mask {
+    display: inline-block;
+    overflow: clip;
+    margin: -0.04em -0.08em -0.18em;
+    padding: 0.04em 0.08em 0.18em;
+    vertical-align: top;
+  }
+
+  .kinetic-word {
+    display: inline-block;
+    transform-origin: 0% 100%;
+    animation: kinetic-rise 1150ms var(--ease-out) backwards;
+    animation-delay: calc(160ms + var(--w, 0) * 62ms);
+  }
+
+  .kinetic-accent {
+    background-image: linear-gradient(
+      100deg,
+      var(--teal) 0%,
+      var(--teal-strong) 38%,
+      #ffffff 50%,
+      var(--teal-strong) 62%,
+      var(--teal) 100%
+    );
+    background-size: 260% 100%;
+    background-position: 0% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--teal);
+    animation:
+      kinetic-rise 1150ms var(--ease-out) backwards,
+      kinetic-shine 1700ms var(--ease-in-out) backwards;
+    animation-delay:
+      calc(160ms + var(--w, 0) * 62ms),
+      calc(1250ms + var(--w, 0) * 140ms);
+  }
+
+  /* The underline draws in beneath the marked phrase once the words have landed. */
+  .kinetic-mark {
+    background-image: linear-gradient(90deg, var(--violet), var(--teal));
+    background-repeat: no-repeat;
+    background-position: 0 88%;
+    background-size: 100% 0.065em;
+    animation: kinetic-underline 1100ms var(--ease-out) backwards;
+    animation-delay: calc(500ms + var(--w, 0) * 62ms);
+  }
+
+  /* Supporting content follows the headline. */
+  .hero-copy > * {
+    animation: rise-in 900ms var(--ease-out) backwards;
+  }
+
+  .hero-copy > :nth-child(1) {
+    animation-delay: 480ms;
+  }
+
+  .hero-copy > :nth-child(2) {
+    animation-delay: 380ms;
+  }
+
+  .hero-copy > :nth-child(3) {
+    animation-delay: 760ms;
+  }
+
+  .hero-copy > :nth-child(4) {
+    animation-delay: 840ms;
+  }
+
+  .hero-map {
+    animation: map-in 1500ms var(--ease-out) backwards 250ms;
+  }
+
+  /* System map --------------------------------------------------------------- */
+
+  .system-map {
+    position: relative;
+    margin: 0;
+  }
+
+  .map-stage {
+    position: relative;
+    aspect-ratio: 720 / 440;
+  }
+
+  /* Corner ticks frame the map like a plotted figure. */
+  .map-stage::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    pointer-events: none;
+    --tick: rgb(148 163 184 / 0.32);
+    background:
+      linear-gradient(var(--tick), var(--tick)) top left / 14px 1px,
+      linear-gradient(var(--tick), var(--tick)) top left / 1px 14px,
+      linear-gradient(var(--tick), var(--tick)) top right / 14px 1px,
+      linear-gradient(var(--tick), var(--tick)) top right / 1px 14px,
+      linear-gradient(var(--tick), var(--tick)) bottom left / 14px 1px,
+      linear-gradient(var(--tick), var(--tick)) bottom left / 1px 14px,
+      linear-gradient(var(--tick), var(--tick)) bottom right / 14px 1px,
+      linear-gradient(var(--tick), var(--tick)) bottom right / 1px 14px;
+    background-repeat: no-repeat;
+  }
+
+  .map-halo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      280px circle at var(--cx, 50%) var(--cy, 50%),
+      rgb(56 225 200 / 0.11),
+      transparent 70%
+    );
+    transition: opacity 700ms ease;
+  }
+
+  .map-stage[data-pointer="in"] .map-halo {
+    opacity: 1;
+  }
+
+  .map-svg,
+  .map-labels {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform: translate3d(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -10px), 0);
+    transition: transform 1100ms var(--ease-out);
+  }
+
+  .map-labels {
+    pointer-events: none;
+  }
+
+  .map-spokes line {
+    stroke: rgb(148 163 184 / calc(0.16 + var(--p, 0) * 0.42));
+    stroke-width: 1;
+    transition: stroke 300ms ease;
+    animation: fade-in 900ms ease backwards 900ms;
+  }
+
+  .map-spokes .map-cross {
+    stroke-dasharray: 2 4;
+  }
+
+  .map-edge-line {
+    fill: none;
+    stroke-width: 1.4;
+    opacity: calc(0.42 + var(--p, 0) * 0.58);
+    stroke-dasharray: 1;
+    transition: opacity 300ms ease;
+    animation: map-draw 1700ms var(--ease-out) backwards;
+    animation-delay: calc(450ms + var(--order, 0) * 90ms);
+  }
+
+  .map-edge[data-style] .map-edge-line {
+    stroke-dasharray: 3 6;
+    opacity: calc(0.3 + var(--p, 0) * 0.5);
+    animation: fade-in 1200ms ease backwards 1300ms;
+  }
+
+  /* A single dash travels each edge: pathLength is 100, so offset 3 → -100 crosses it once. */
+  .map-packet,
+  .map-packet-glow {
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 3 200;
+    stroke-dashoffset: 3;
+    animation: map-flow var(--dur, 4s) linear infinite;
+    animation-delay: calc(var(--delay, 0s) + 2.4s);
+  }
+
+  .map-packet {
+    stroke: #ffffff;
+    stroke-width: 2.2;
+  }
+
+  .map-packet-glow {
+    stroke-width: 8;
+    opacity: 0.32;
+  }
+
+  .map-edge[data-style="feedback"] .map-packet {
+    stroke: var(--violet-strong);
+    stroke-width: 1.6;
+  }
+
+  .map-sat {
+    fill: rgb(203 213 225 / calc(0.42 + var(--p, 0) * 0.58));
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(calc(1 + var(--p, 0) * 0.7));
+    transition:
+      transform 350ms var(--ease-out),
+      fill 300ms ease;
+    animation: map-pop 700ms var(--ease-out) backwards;
+    animation-delay: calc(800ms + var(--order, 0) * 35ms);
+  }
+
+  .map-hub {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: map-pop 850ms var(--ease-out) backwards;
+    animation-delay: calc(320ms + var(--order, 0) * 110ms);
+  }
+
+  .map-hub-core {
+    fill: var(--tone);
+  }
+
+  .map-hub-ring {
+    fill: var(--bg);
+    stroke: var(--tone);
+    stroke-width: 1.3;
+    stroke-opacity: calc(0.5 + var(--p, 0) * 0.5);
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(calc(1 + var(--p, 0) * 0.24));
+    transition:
+      transform 450ms var(--ease-out),
+      stroke-opacity 300ms ease;
+  }
+
+  .map-hub-halo {
+    fill: var(--tone);
+    opacity: calc(0.05 + var(--p, 0) * 0.17);
+    transition: opacity 300ms ease;
+  }
+
+  .map-hub-pulse {
+    fill: none;
+    stroke: var(--tone);
+    stroke-width: 1;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: map-pulse 5.2s var(--ease-out) infinite;
+    animation-delay: calc(2.2s + var(--order, 0) * 0.85s);
+  }
+
+  .map-label {
+    position: absolute;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgb(5 7 11 / 0.66);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgb(242 245 249 / calc(0.68 + var(--p, 0) * 0.32));
+    transform: translate(-50%, 1.15rem);
+    transition: color 300ms ease;
+    animation: fade-in 900ms ease backwards;
+    animation-delay: calc(900ms + var(--order, 0) * 110ms);
+  }
+
+  .map-label[data-at="above"] {
+    transform: translate(-50%, calc(-100% - 1.15rem));
+  }
+
+  .map-label[data-tone="model"] {
+    color: rgb(199 184 255 / calc(0.75 + var(--p, 0) * 0.25));
+  }
+
+  .map-label[data-tone="control"] {
+    color: rgb(138 243 228 / calc(0.75 + var(--p, 0) * 0.25));
+  }
+
+  .map-caption {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: inherit;
+    gap: 0.4rem 1.25rem;
+  }
+
+  .map-key {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.45rem;
+    border-radius: 50%;
+    vertical-align: 0;
+  }
+
+  .map-key[data-tone="model"] {
+    background: var(--violet);
+  }
+
+  .map-key[data-tone="control"] {
+    border-radius: 1px;
+    background: var(--teal);
+    transform: rotate(45deg);
+  }
+
+  @media (max-width: 639px) {
+    .map-optional {
+      display: none;
+    }
+
+    .map-label {
+      font-size: 0.625rem;
+      letter-spacing: 0.1em;
+      transform: translate(-50%, 0.7rem);
+    }
+
+    .map-label[data-at="above"] {
+      transform: translate(-50%, calc(-100% - 0.7rem));
+    }
+
+    .map-caption {
+      justify-content: flex-start;
+    }
+  }
+
+  /* Conceptual workflow ------------------------------------------------------ */
+
+  .pipeline {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+    background: linear-gradient(180deg, rgb(16 24 38 / 0.72), rgb(8 12 19 / 0.72));
+    box-shadow: var(--shadow-card);
+  }
+
+  .pipe-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .pipe-key {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.4rem;
+    border-radius: 50%;
+    background: var(--violet);
+  }
+
+  .pipe-key[data-kind="control"] {
+    border-radius: 1px;
+    background: var(--teal);
+    transform: rotate(45deg);
+  }
+
+  .pipe-list {
+    display: grid;
+  }
+
+  .pipe-stage {
+    --cycle: 8s;
+    --step: 0.9s;
+    --stage-color: var(--fg);
+    --stage-glow: rgb(242 245 249 / 0.35);
+    --node: 1.25rem;
+    --pad-x: 1.5rem;
+    --pad-top: 1.5rem;
+    position: relative;
+    padding: var(--pad-top) var(--pad-x) 1.75rem calc(var(--pad-x) + var(--node) + 1.25rem);
+  }
+
+  .pipe-stage[data-kind="model"] {
+    --stage-color: var(--violet);
+    --stage-glow: rgb(166 140 255 / 0.55);
+  }
+
+  .pipe-stage[data-kind="control"] {
+    --stage-color: var(--teal);
+    --stage-glow: rgb(56 225 200 / 0.5);
+  }
+
+  .pipe-node {
+    position: absolute;
+    top: var(--pad-top);
+    left: var(--pad-x);
+    display: grid;
+    width: var(--node);
+    height: var(--node);
+    place-items: center;
+  }
+
+  .pipe-marker {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--stage-color);
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.04);
+    animation: pipe-flash var(--cycle) ease-out infinite;
+    animation-delay: calc(1.6s + var(--i, 0) * var(--step));
+  }
+
+  .pipe-stage[data-kind="control"] .pipe-marker {
+    border-radius: 2px;
+    transform: rotate(45deg);
+  }
+
+  /* Ring that pings when the signal arrives. */
+  .pipe-node::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--stage-color);
+    border-radius: 50%;
+    opacity: 0;
+    animation: pipe-ping var(--cycle) var(--ease-out) infinite;
+    animation-delay: calc(1.6s + var(--i, 0) * var(--step));
+  }
+
+  /* Connector to the next stage: a resting line, and the signal that fills it. */
+  .pipe-stage:not([data-last])::before,
+  .pipe-stage:not([data-last])::after {
+    content: "";
+    position: absolute;
+    left: calc(var(--pad-x) + var(--node) / 2 - 0.5px);
+    top: calc(var(--pad-top) + var(--node) + 6px);
+    width: 1px;
+    height: calc(100% - var(--node) - 12px);
+    background: var(--line-strong);
+  }
+
+  .pipe-stage:not([data-last])::after {
+    background: linear-gradient(to bottom, var(--stage-color), var(--teal));
+    transform-origin: top center;
+    transform: scaleY(0);
+    animation: pipe-fill-y var(--cycle) linear infinite;
+    animation-delay: calc(1.6s + var(--i, 0) * var(--step));
+  }
+
+  .pipe-name {
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+  }
+
+  @media (min-width: 1024px) {
+    .pipe-list {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .pipe-stage {
+      --pad-top: 1.75rem;
+      padding: var(--pad-top) var(--pad-x) 2rem;
+    }
+
+    .pipe-node {
+      position: relative;
+      top: auto;
+      left: auto;
+      margin-bottom: 1.25rem;
+    }
+
+    .pipe-stage:not([data-last])::before,
+    .pipe-stage:not([data-last])::after {
+      left: calc(var(--pad-x) + var(--node) + 8px);
+      top: calc(var(--pad-top) + var(--node) / 2 - 0.5px);
+      width: calc(100% - var(--node) - 16px);
+      height: 1px;
+    }
+
+    .pipe-stage:not([data-last])::after {
+      background: linear-gradient(to right, var(--stage-color), var(--teal));
+      transform-origin: left center;
+      transform: scaleX(0);
+      animation-name: pipe-fill-x;
+    }
+  }
+}
+
+/*
+ * Infinite loops pause while their container is off screen. Entrance
+ * animations are left alone so they always finish.
+ */
+[data-loop][data-inview="false"]
+  :is(.map-packet, .map-packet-glow, .map-hub-pulse, .pipe-marker, .endpoint-pulse),
+[data-loop][data-inview="false"] .pipe-node::after,
+[data-loop][data-inview="false"] .pipe-stage::after {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kinetic-word,
+  .kinetic-accent,
+  .kinetic-mark,
+  .hero-eyebrow,
+  .hero-copy > *,
+  .hero-map,
+  .map-hub,
+  .map-sat,
+  .map-edge-line,
+  .map-label,
+  .map-spokes line {
+    animation: none !important;
+  }
+
+  .map-packet,
+  .map-packet-glow,
+  .map-hub-pulse,
+  .pipe-node::after,
+  .pipe-stage::after {
+    display: none;
+  }
+
+  .pipe-marker {
+    animation: none !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .kinetic-accent {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+  }
+
+  .kinetic-mark {
+    background: none;
+    text-decoration: underline;
+  }
+}
+
+/* Keyframes ------------------------------------------------------------------ */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes kinetic-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 108%, 0) rotate(4deg);
+  }
+  45% {
+    opacity: 1;
+  }
+}
+
+@keyframes kinetic-shine {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes kinetic-underline {
+  from {
+    background-size: 0% 0.065em;
+  }
+}
+
+@keyframes map-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes map-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes map-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+@keyframes map-flow {
+  from {
+    stroke-dashoffset: 3;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes map-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  55%,
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+@keyframes pipe-flash {
+  0% {
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.04),
+      0 0 18px 3px var(--stage-glow);
+  }
+  14%,
+  100% {
+    box-shadow:
+      0 0 0 4px rgb(255 255 255 / 0.04),
+      0 0 0 0 transparent;
+  }
+}
+
+@keyframes pipe-ping {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.55);
+  }
+  14%,
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+/* 11.25% of the 8s cycle is 0.9s: the fill reaches the next stage as it lights. */
+@keyframes pipe-fill-x {
+  0% {
+    opacity: 1;
+    transform: scaleX(0);
+  }
+  11.25% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  22%,
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes pipe-fill-y {
+  0% {
+    opacity: 1;
+    transform: scaleY(0);
+  }
+  11.25% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  22%,
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}

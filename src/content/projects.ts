@@ -8,6 +8,62 @@ export type ProjectLink = {
   href: string;
 };
 
+/**
+ * How a step is produced. "model": a language or vision model. "rule": code with
+ * fixed logic (schemas, scoring, checks). "human": a person. "data": a data
+ * source or store. "service": application code that moves data along.
+ */
+export type DiagramStepKind = "model" | "rule" | "human" | "data" | "service" | "output";
+
+export type DiagramStep = {
+  label: string;
+  detail: string;
+  kind: DiagramStepKind;
+};
+
+/**
+ * An architecture diagram drawn from the repository's code, not a screenshot.
+ * The site labels it as a diagram.
+ */
+export type ProjectDiagram = {
+  title: string;
+  /** "rail" runs the steps in a row when there is room; "column" stacks them. */
+  layout: "column" | "rail";
+  inputs: string[];
+  steps: DiagramStep[];
+  facet?: {
+    label: string;
+    items: { name: string; note?: string; weight?: number }[];
+  };
+  /** Possible results, where the code defines a fixed set. */
+  outcomes?: string[];
+};
+
+export type ProjectScreenshot = {
+  /** Path under public/. */
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  caption: string;
+};
+
+/** Static images of a multi-page report, shown one page at a time. */
+export type ReportPreview = {
+  /** Says where the images come from and that they are not interactive. */
+  caption: string;
+  /** Index of the page shown first. */
+  initialPage: number;
+  pages: {
+    /** The page name as it appears in the report file. */
+    name: string;
+    src: string;
+    width: number;
+    height: number;
+    alt: string;
+  }[];
+};
+
 export type Project = {
   slug: string;
   title: string;
@@ -22,6 +78,11 @@ export type Project = {
   context?: string;
   repository: ProjectLink;
   demo?: ProjectLink;
+  /** A static export, such as a PDF. Never use it for a hosted or interactive report. */
+  report?: ProjectLink;
+  diagram?: ProjectDiagram;
+  screenshot?: ProjectScreenshot;
+  preview?: ReportPreview;
 };
 
 export const featuredProjects: Project[] = [
@@ -46,6 +107,52 @@ export const featuredProjects: Project[] = [
       label: "Live app",
       href: "https://verdictai-fawn.vercel.app/",
     },
+    // Sources: app/api/[[...path]]/route.js, lib/services/openai/openAIAnalysisService.ts,
+    // openAIAnalysisSchema.ts, and computeVerdict in lib/services/analysisService.ts.
+    diagram: {
+      title: "From two photos to a rule-based verdict",
+      layout: "column",
+      inputs: ["Your photo", "Garment photo", "Occasion", "Style profile"],
+      steps: [
+        {
+          kind: "rule",
+          label: "Input checks",
+          detail: "File type, size, and a 512 px minimum, before any model call",
+        },
+        {
+          kind: "model",
+          label: "Vision model",
+          detail: "Rates six dimensions, each with a reason and a confidence",
+        },
+        {
+          kind: "rule",
+          label: "Zod schema",
+          detail: "Strict validation. A mismatched response fails; nothing is guessed",
+        },
+        {
+          kind: "rule",
+          label: "Fixed rules",
+          detail: "A weighted score maps to one of four verdicts",
+        },
+        {
+          kind: "output",
+          label: "Explained verdict",
+          detail: "Reasons per dimension, and what to consider",
+        },
+      ],
+      facet: {
+        label: "Rule weights per dimension",
+        items: [
+          { name: "Occasion fit", weight: 30 },
+          { name: "Formality", weight: 25 },
+          { name: "Style preference match", weight: 20 },
+          { name: "Color harmony", weight: 15 },
+          { name: "Seasonality", weight: 10 },
+          { name: "Style consistency", note: "Shown, not scored" },
+        ],
+      },
+      outcomes: ["Highly Recommended", "Recommended", "Consider Alternatives", "Not Recommended"],
+    },
   },
   {
     slug: "auditflow",
@@ -55,7 +162,10 @@ export const featuredProjects: Project[] = [
       "Audit-evidence review for finance teams. Five agents compare invoices, purchase orders, receipts, and bank and ledger records, flag exceptions, and compile a review-ready workpaper.",
     highlights: [
       "Intake, Evidence, Anomaly, Decision, and Workpaper agents running on Anthropic Claude",
-      "Any finding is routed to a human reviewer, and reviewer decisions are saved server-side",
+      // Verified 27 Oct 2026 against the current code, not the README (which still describes
+      // the older /feedback decision flow): frontend/lib/zoho-desk.ts sends one finding at a
+      // time to POST /send-to-zoho-desk, and no frontend file calls /feedback (commit 2fc2764).
+      "Findings are routed for human review, and reviewers can raise each finding as a Zoho Desk ticket",
       "Tested on 14 synthetic benchmark cases; some cases varied between runs, and the current code has not been fully re-measured",
     ],
     stack: ["Next.js", "TypeScript", "Python", "FastAPI", "Anthropic Claude"],
@@ -70,6 +180,52 @@ export const featuredProjects: Project[] = [
       label: "Live app",
       href: "https://auditflow-kohl.vercel.app/",
     },
+    // Sources: agents/*_agent.py (run in sequence by run_full_pipeline in workpaper_agent.py).
+    // The Decision and Workpaper steps set their outcomes in code; the model writes the wording.
+    diagram: {
+      title: "Five agents in sequence, then a person",
+      layout: "rail",
+      inputs: ["Invoices", "Receipts", "Purchase orders", "Bank statements", "Ledger entries"],
+      steps: [
+        {
+          kind: "model",
+          label: "Intake",
+          detail: "Classifies documents and extracts amounts, dates, and references",
+        },
+        {
+          kind: "model",
+          label: "Evidence",
+          detail: "Groups a transaction's documents and lists what is missing",
+        },
+        {
+          kind: "model",
+          label: "Anomaly",
+          detail: "Checks eight issue types, such as duplicate invoices",
+        },
+        {
+          kind: "rule",
+          label: "Decision",
+          detail: "Code routes any finding to review; the model explains why",
+        },
+        {
+          kind: "rule",
+          label: "Workpaper",
+          detail: "Rows and totals computed in code, labelled by the model",
+        },
+        {
+          kind: "human",
+          label: "Human review",
+          detail: "A person reviews every finding",
+        },
+      ],
+    },
+    screenshot: {
+      src: "/images/projects/auditflow-case-09.png",
+      width: 1764,
+      height: 772,
+      alt: "AuditFlow review register for CASE_09: one transaction flagged for a duplicate invoice, an amount above the purchase order, and a missing receipt, with the agent action set to human review.",
+      caption: "Screenshot: synthetic benchmark CASE_09 routed to human review. Added to the repository in September 2026; the reviewer controls have changed since.",
+    },
   },
   {
     slug: "writewise",
@@ -79,7 +235,9 @@ export const featuredProjects: Project[] = [
       "A writing tool for job seekers and professionals that combines general editing modes with job-focused features, such as application emails personalized to the user's own background.",
     highlights: [
       "Ten writing modes, from grammar and tone to paraphrasing, summarizing, and prompt rewriting",
-      "Job emails only state experience the user supplied; posting requirements are never presented as their background",
+      // Verified 27 Oct 2026: the rule lives in prompt text in backend/server.py. Code only
+      // drops invented placeholder lines and empty bullets; it does not check claims.
+      "Job-email prompts instruct the model to use only the experience supplied by the user, rather than presenting job-posting requirements as their background",
       "Stateless FastAPI backend calling the OpenAI API, with no login or database",
     ],
     stack: ["React", "FastAPI", "Python", "OpenAI API", "Tailwind CSS"],
@@ -90,6 +248,44 @@ export const featuredProjects: Project[] = [
     demo: {
       label: "Live app",
       href: "https://write-wise-project.vercel.app/",
+    },
+    // Sources: frontend/src/App.js (modes), backend/server.py (prompting and the OpenAI call).
+    diagram: {
+      title: "One stateless request path",
+      layout: "column",
+      inputs: ["Your text", "Optional profile, kept in the browser"],
+      steps: [
+        {
+          kind: "service",
+          label: "React interface",
+          detail: "Ten modes, each with its own options",
+        },
+        {
+          kind: "service",
+          label: "FastAPI backend",
+          detail: "Builds the prompt for the chosen mode. No login, no database",
+        },
+        {
+          kind: "model",
+          label: "OpenAI API",
+          detail: "Returns structured JSON for the interface",
+        },
+      ],
+      facet: {
+        label: "Writing modes",
+        items: [
+          { name: "Auto" },
+          { name: "Grammar" },
+          { name: "Email" },
+          { name: "Tone" },
+          { name: "Rewrite" },
+          { name: "Paraphrase" },
+          { name: "Summarize" },
+          { name: "Expand / Shorten" },
+          { name: "Humanize" },
+          { name: "Prompt" },
+        ],
+      },
     },
   },
   {
@@ -109,10 +305,123 @@ export const featuredProjects: Project[] = [
       label: "Repository",
       href: "https://github.com/tymepas/airwise-ai",
     },
+    // Sources: app/api/chat/route.ts and lib/rag.ts. Retrieval is keyword-based (BM25) only.
+    diagram: {
+      title: "Retrieve first, then generate",
+      layout: "column",
+      inputs: ["A health or air-quality question"],
+      steps: [
+        {
+          kind: "model",
+          label: "Query planning",
+          detail: "Gemini suggests search phrases; a fixed health ontology adds terms",
+        },
+        {
+          kind: "data",
+          label: "Elasticsearch",
+          detail: "Three keyword searches over WHO and CPCB guidance, run in parallel",
+        },
+        {
+          kind: "rule",
+          label: "Re-rank",
+          detail: "Results are merged and ranked in code; the top four are kept",
+        },
+        {
+          kind: "model",
+          label: "Gemini answer",
+          detail: "Answers from the retrieved guidance as structured JSON",
+        },
+      ],
+      facet: {
+        label: "Response fields",
+        items: [
+          { name: "Decision" },
+          { name: "Reason" },
+          { name: "Actions" },
+          { name: "Sources", note: "Filtered in code to retrieved documents" },
+        ],
+      },
+    },
   },
 ];
 
 export const analyticsProjects: Project[] = [
+  // Sources: README.md and ElectionResult_Dashboard.{pbix,pdf,png} in
+  // github.com/tymepas/Power-BI-Projects-Portfolio. Page names follow the PBIX report
+  // layout. Page 1 is the repository's PNG screenshot; pages 2 to 6 are rendered from the
+  // PDF export with its white margins trimmed. The README offers no hosted interactive
+  // report: the PDF is the online view and the .pbix opens in Power BI Desktop.
+  {
+    slug: "india-election-2024",
+    title: "India General Election 2024 – Results Analysis",
+    category: "Power BI report",
+    summary:
+      "A six-page Power BI report on the results of India's 2024 general election, from national alliance totals down to individual constituencies.",
+    highlights: [
+      "State-wise and constituency-wise result analysis",
+      "Alliance seat-share comparison between the NDA and I.N.D.I.A",
+      "Geospatial visuals on Bing Maps, with drill-downs and tooltips",
+      "Winning margins, vote share, and candidate performance metrics",
+    ],
+    stack: ["Power BI", "DAX", "Power Query", "Bing Maps API"],
+    repository: {
+      label: "Repository",
+      href: "https://github.com/tymepas/Power-BI-Projects-Portfolio",
+    },
+    report: {
+      label: "PDF export",
+      href: "https://github.com/tymepas/Power-BI-Projects-Portfolio/blob/main/ElectionResult_Dashboard.pdf",
+    },
+    preview: {
+      caption:
+        "Static images: page 1 is the screenshot from the repository, and pages 2 to 6 come from the PDF export. The interactive report is the .pbix file in the repository, opened in Power BI Desktop.",
+      initialPage: 2,
+      pages: [
+        {
+          name: "Landing Page",
+          src: "/images/projects/india-election-2024-landing.webp",
+          width: 1800,
+          height: 1001,
+          alt: "Landing page of the India General Election Results Analysis 2024 report: the title, voting dates of 19 April to 1 June 2024, the 4 June 2024 counting date, an introduction, and navigation tiles for the Overview, State Demographic, Political Analysis by State, and Constituency Analysis dashboards.",
+        },
+        {
+          name: "Overview Analysis",
+          src: "/images/projects/india-election-2024-overview.webp",
+          width: 1800,
+          height: 1008,
+          alt: "Overview Analysis page: seats won out of 543 by alliance, NDA 292 (54%), I.N.D.I.A 234 (43%), and others or independents 17 (3%), followed by seats won by each party in the 14-party NDA and the 20-party I.N.D.I.A alliance.",
+        },
+        {
+          name: "State Demographics Analysis",
+          src: "/images/projects/india-election-2024-state-demographics.webp",
+          width: 1800,
+          height: 1008,
+          alt: "State Demographics Analysis page: three Bing Maps visuals of India showing seats by state with alliance totals in tooltips, the winning candidate and party in each constituency, and states coloured by the alliance that won most of their seats.",
+        },
+        {
+          name: "Political analysis by State",
+          src: "/images/projects/india-election-2024-political-by-state.webp",
+          width: 1800,
+          height: 1008,
+          alt: "Political analysis by State page, filtered to Uttar Pradesh: I.N.D.I.A 43, NDA 36, and other 1 of 80 seats, with a state map, a party-wise results table, and a party-wise seat-share donut chart.",
+        },
+        {
+          name: "Constituency Analysis",
+          src: "/images/projects/india-election-2024-constituency.webp",
+          width: 1800,
+          height: 1008,
+          alt: "Constituency Analysis page, filtered to Mathura in Uttar Pradesh: total, EVM, and postal votes, 16 candidates, and cards for the winner, runner-up, and second runner-up with each one's party, votes, and vote share.",
+        },
+        {
+          name: "Details Grid",
+          src: "/images/projects/india-election-2024-details-grid.webp",
+          width: 1800,
+          height: 1008,
+          alt: "Details Grid page: a table of constituencies with the winning and runner-up candidates, party, alliance, EVM votes, postal votes, total votes, and winning margin, with data bars on total votes and margin.",
+        },
+      ],
+    },
+  },
   {
     slug: "world-indicators-dashboard",
     title: "World Indicators Dashboard",
@@ -128,6 +437,58 @@ export const analyticsProjects: Project[] = [
     repository: {
       label: "Repository",
       href: "https://github.com/tymepas/world-indicators-dashboard",
+    },
+    // Sources: powerbi_connector.py, Realtime_Dashboard_python.ipynb, and the README.
+    diagram: {
+      title: "From a public API to a refreshable report",
+      layout: "rail",
+      inputs: ["World Bank API"],
+      steps: [
+        {
+          kind: "data",
+          label: "Fetch",
+          detail: "Country metadata and 26 indicators, paged, from 2016 onward",
+        },
+        {
+          kind: "rule",
+          label: "Clean and merge",
+          detail: "pandas adds region and income level and joins on country",
+        },
+        {
+          kind: "data",
+          label: "Seven tables",
+          detail: "One per indicator category",
+        },
+        {
+          kind: "service",
+          label: "Power Query",
+          detail: "The same Python script runs as a data source, so the report can refresh",
+        },
+        {
+          kind: "output",
+          label: "Power BI report",
+          detail: "KPI cards, trend lines, scatter plots, and correlation heatmaps",
+        },
+      ],
+      facet: {
+        label: "Indicator categories",
+        items: [
+          { name: "Economic activity" },
+          { name: "Labour market" },
+          { name: "Trade" },
+          { name: "Poverty and inequality" },
+          { name: "Environment" },
+          { name: "Health" },
+          { name: "Technology" },
+        ],
+      },
+    },
+    screenshot: {
+      src: "/images/projects/world-indicators-dashboard.png",
+      width: 1561,
+      height: 1036,
+      alt: "The World Indicators Analysis Power BI report: KPI cards for GDP per capita, trade, health spending, GDP growth, and forest cover; a bar chart of health spending by region; indicator trend lines; two scatter charts; poverty-reduction tables; a correlation heatmap; and a regression plot of health expenditure against life expectancy.",
+      caption: "Screenshot of the Power BI report, from the project repository.",
     },
   },
 ];

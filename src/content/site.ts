@@ -23,6 +23,33 @@ export const site = {
     "Portfolio of Garvit Mathur, a project manager in market research operations who builds analytics dashboards and AI applications with LLM APIs, structured outputs, and agentic workflows.",
 } as const;
 
+export type HeadlineWord = {
+  text: string;
+  /** "accent" colours the word; "mark" underlines it. */
+  tone?: "accent" | "mark";
+};
+
+const headline: HeadlineWord[] = [
+  { text: "Building" },
+  { text: "intelligent", tone: "accent" },
+  { text: "systems", tone: "accent" },
+  { text: "that" },
+  { text: "turn" },
+  { text: "complex" },
+  { text: "problems" },
+  { text: "into" },
+  { text: "useful", tone: "mark" },
+  { text: "products.", tone: "mark" },
+];
+
+// Hero copy. The headline is a positioning statement; the introduction carries
+// the verified specifics and is unchanged from the approved first version.
+export const hero = {
+  headline,
+  intro:
+    "I’m Garvit Mathur, a project manager with 5+ years in market research and research operations. I also build analytics dashboards and AI applications with LLM APIs and agentic workflows, focused on structured outputs, explainable decisions, and practical automation.",
+};
+
 export const navItems: NavItem[] = [
   { label: "Work", href: "/#work" },
   { label: "Analytics", href: "/#analytics" },

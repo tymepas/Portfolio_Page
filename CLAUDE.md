@@ -48,7 +48,7 @@ Avoid:
 - Fake terminal windows or meaningless metrics
 - Unnecessary visual effects and dependencies
 
-Prefer a light, neutral visual foundation with dark typography and restrained teal or blue accents. Keep the design consistent throughout the application.
+Use the dark-first "AI engineering lab" identity defined by the tokens in src/app/globals.css: near-black and midnight-blue surfaces, high-contrast white type, teal for data, deterministic steps, and interaction, and violet for model-driven steps. Keep the design consistent throughout the application.
 
 Respect reduced-motion preferences and accessibility requirements.
 
@@ -122,9 +122,11 @@ Case studies should explain the problem, approach, architecture, implementation,
 Completed:
 - Homepage foundation: design tokens, responsive navigation with an accessible mobile menu, hero, and calls to action
 - Featured AI projects (Verdict, AuditFlow, WriteWise, AirWise AI), with individual and team work labelled
-- Analytics work (World Indicators Dashboard)
+- Analytics work: India General Election 2024 – Results Analysis as the primary showcase (six authentic report pages; PDF export linked, no hosted interactive report exists) and World Indicators Dashboard
 - Credentials and professional development section, linked from the navigation
 - Project README
+- AI engineering lab redesign: dark design tokens, kinetic hero, system map, conceptual workflow, project architecture diagrams drawn from the repositories, analytics band, credentials timeline, contact section, and command palette (CSS-first motion, no animation library)
+- AuditFlow and WriteWise highlights corrected after checking the current code (Zoho Desk review flow; prompt-level job-email rule)
 
 Next, one milestone at a time:
 - Detailed project case studies

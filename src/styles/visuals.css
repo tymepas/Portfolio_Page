@@ -1,0 +1,1085 @@
+/*
+ * Project visuals: cards, architecture diagrams, screenshots, the analytics
+ * band, the credentials timeline, and the closing contact section.
+ *
+ * Diagrams animate once when revealed (steps arrive in order). While a card is
+ * hovered or focused, a signal relays along its steps; nothing loops unattended.
+ */
+
+@layer components {
+  /* Project cards ------------------------------------------------------------- */
+
+  .project-card {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+    background: linear-gradient(180deg, rgb(16 24 38 / 0.55), rgb(8 12 19 / 0.35));
+    box-shadow: var(--shadow-card);
+    transition:
+      border-color var(--dur-base) ease,
+      box-shadow var(--dur-base) ease;
+  }
+
+  .project-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .project-head {
+    grid-area: head;
+  }
+
+  .project-visual {
+    grid-area: visual;
+    min-width: 0;
+  }
+
+  .project-body {
+    grid-area: body;
+  }
+
+  .project-feature,
+  .project-compact {
+    display: grid;
+    grid-template-areas: "head" "visual" "body";
+    align-content: start;
+    row-gap: 2rem;
+    padding: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .project-feature,
+    .project-compact {
+      padding: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .project-feature {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-rows: auto 1fr;
+      grid-template-areas: "visual head" "visual body";
+      column-gap: 3rem;
+      padding: 2.5rem;
+    }
+
+    .project-feature[data-reverse] {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-areas: "head visual" "body visual";
+    }
+
+    .project-feature .project-head {
+      padding-top: 0.5rem;
+    }
+
+    .project-compact {
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas: "visual" "head" "body";
+    }
+  }
+
+  .btn-compact {
+    height: 2.5rem;
+    padding: 0 1.1rem;
+    font-size: 0.875rem;
+  }
+
+  /* Diagram frame -------------------------------------------------------------- */
+
+  .diagram {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background:
+      radial-gradient(ellipse 80% 60% at 15% 0%, rgb(10 20 48 / 0.85), transparent 70%),
+      var(--bg-raised);
+  }
+
+  .diagram::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.15) 1px, transparent 1.5px);
+    background-size: 20px 20px;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 90%);
+    mask-image: linear-gradient(to bottom, #000, transparent 90%);
+  }
+
+  .diagram-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .diagram-body {
+    container-type: inline-size;
+    padding: 1.25rem 1.1rem 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .diagram-head {
+      padding-inline: 1.75rem;
+    }
+
+    .diagram-body {
+      padding: 1.75rem 1.75rem 2rem;
+    }
+  }
+
+  .diagram-label {
+    margin-bottom: 0.625rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .diagram-split {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @container (min-width: 34rem) {
+    .diagram-split {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: start;
+      gap: 2.25rem;
+    }
+  }
+
+  /* Steps -------------------------------------------------------------------- */
+
+  .flow-steps {
+    position: relative;
+    display: grid;
+  }
+
+  .flow-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    column-gap: 0.9rem;
+    padding-bottom: 1.15rem;
+  }
+
+  .flow-step:last-child {
+    padding-bottom: 0;
+  }
+
+  .flow-node {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    place-items: center;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: var(--bg-raised);
+  }
+
+  .flow-marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fg);
+  }
+
+  .flow-step[data-kind="model"] .flow-marker {
+    background: var(--violet);
+    box-shadow: 0 0 10px rgb(166 140 255 / 0.65);
+  }
+
+  .flow-step[data-kind="rule"] .flow-marker {
+    border-radius: 1.5px;
+    background: var(--teal);
+    box-shadow: 0 0 10px rgb(56 225 200 / 0.5);
+    transform: rotate(45deg);
+  }
+
+  .flow-step[data-kind="data"] .flow-marker {
+    border-radius: 2px;
+    background: var(--fg-muted);
+  }
+
+  .flow-step[data-kind="service"] .flow-marker {
+    border-radius: 2px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--fg-muted);
+  }
+
+  .flow-step[data-kind="human"] .flow-marker {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--fg);
+  }
+
+  .flow-step[data-kind="output"] .flow-marker {
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 0.12);
+  }
+
+  /* Connector to the next step: a resting line, and the relay that fills it. */
+  .flow-step:not(:last-child)::before,
+  .flow-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: calc(1.5rem + 3px);
+    bottom: 3px;
+    left: calc(0.75rem - 0.5px);
+    width: 1px;
+    background: var(--line-strong);
+  }
+
+  .flow-step:not(:last-child)::after {
+    background: linear-gradient(to bottom, var(--teal), var(--violet));
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+
+  .flow-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    color: var(--fg);
+  }
+
+  .flow-kind {
+    padding: 0 0.375rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.65625rem;
+    font-weight: 400;
+    line-height: 1.15rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .flow-step[data-kind="model"] .flow-kind {
+    border-color: rgb(166 140 255 / 0.3);
+    color: var(--violet-strong);
+  }
+
+  .flow-step[data-kind="rule"] .flow-kind {
+    border-color: rgb(56 225 200 / 0.28);
+    color: var(--teal-strong);
+  }
+
+  .flow-detail {
+    margin-top: 0.15rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--fg-muted);
+  }
+
+  /* Rail: steps in a row once the diagram is wide enough. */
+  @container (min-width: 40rem) {
+    .flow-steps[data-layout="rail"] {
+      grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+      column-gap: 1rem;
+    }
+
+    .flow-steps[data-layout="rail"] .flow-step {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      row-gap: 0.875rem;
+      padding-bottom: 0;
+    }
+
+    .flow-steps[data-layout="rail"] .flow-step:not(:last-child)::before,
+    .flow-steps[data-layout="rail"] .flow-step:not(:last-child)::after {
+      top: calc(0.75rem - 0.5px);
+      bottom: auto;
+      left: calc(1.5rem + 6px);
+      width: calc(100% - 0.5rem - 12px);
+      height: 1px;
+    }
+
+    .flow-steps[data-layout="rail"] .flow-step:not(:last-child)::after {
+      background: linear-gradient(to right, var(--teal), var(--violet));
+      transform: scaleX(0);
+      transform-origin: left center;
+    }
+  }
+
+  .flow-inputs .chip {
+    font-size: 0.6875rem;
+  }
+
+  /* Facets -------------------------------------------------------------------- */
+
+  .facet {
+    container-type: inline-size;
+  }
+
+  .facet-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .facet-item {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-chip);
+    background: rgb(255 255 255 / 0.025);
+    font-size: 0.8125rem;
+    color: var(--fg);
+  }
+
+  .facet-note {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--teal-strong);
+  }
+
+  .weight-row {
+    display: grid;
+    grid-template-columns: minmax(0, 10rem) minmax(0, 1fr) 2.5rem;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .weight-row > :last-child {
+    text-align: right;
+  }
+
+  .weight-track {
+    position: relative;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .weight-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--teal-deep), var(--teal));
+    transform: scaleX(var(--share, 0));
+    transform-origin: left center;
+  }
+
+  /* In narrow diagrams each bar takes its own full-width line under the name. */
+  @container (max-width: 26rem) {
+    .weight-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      row-gap: 0.4rem;
+    }
+
+    .weight-track {
+      grid-row: 2;
+      grid-column: 1 / -1;
+    }
+  }
+
+  .outcomes {
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .outcome-scale {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.375rem;
+  }
+
+  @container (min-width: 36rem) {
+    .outcome-scale {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .outcome-scale li {
+    position: relative;
+    padding: 0.55rem 0.7rem 0.55rem 1.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-chip);
+    background: rgb(56 225 200 / calc(var(--level, 0) * 0.08));
+    font-size: 0.78125rem;
+    line-height: 1.35;
+    color: var(--fg);
+  }
+
+  .outcome-scale li::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0.65rem;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: rgb(56 225 200 / calc(0.2 + var(--level, 0) * 0.8));
+  }
+
+  /* Screenshots ----------------------------------------------------------------- */
+
+  .shot {
+    margin: 0;
+  }
+
+  .shot-frame {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .shot-frame img {
+    display: block;
+  }
+
+  .shot-bar {
+    padding: 0.5rem 0.875rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  /* Analytics: a single scan line crosses the dashboard as it arrives. */
+  .shot-dashboard .shot-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 44%,
+      rgb(56 225 200 / 0.24) 50%,
+      transparent 51%
+    );
+  }
+
+  /* Analytics projects -------------------------------------------------------- */
+
+  .analytics-showcase {
+    padding: 1rem;
+  }
+
+  .analytics-card {
+    display: grid;
+    grid-template-areas: "head" "visual" "body" "diagram";
+    row-gap: 2rem;
+    padding: 1rem;
+  }
+
+  .analytics-diagram {
+    grid-area: diagram;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .analytics-showcase,
+    .analytics-card {
+      padding: 2rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .analytics-showcase {
+      padding: 2.5rem;
+    }
+
+    .analytics-card {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas: "visual head" "visual body" "diagram diagram";
+      column-gap: 3rem;
+      padding: 2.5rem;
+    }
+
+    .analytics-card .project-head {
+      padding-top: 0.5rem;
+    }
+  }
+
+  /* Report viewer: static pages of a report, one at a time. */
+  .report-viewer {
+    margin: 0;
+  }
+
+  .report-layout {
+    display: grid;
+    grid-template-areas: "frame" "tabs";
+    gap: 1rem;
+  }
+
+  .report-tabs {
+    grid-area: tabs;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.375rem;
+  }
+
+  .report-tab {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    background: rgb(255 255 255 / 0.02);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    text-align: left;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+
+  .report-tab:hover {
+    border-color: var(--line-strong);
+    color: var(--fg);
+  }
+
+  .report-tab[aria-selected="true"] {
+    border-color: rgb(56 225 200 / 0.45);
+    background: rgb(56 225 200 / 0.08);
+    box-shadow: inset 3px 0 0 var(--teal);
+    color: var(--fg);
+  }
+
+  .report-tab-index {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--fg-subtle);
+  }
+
+  .report-tab[aria-selected="true"] .report-tab-index {
+    color: var(--teal);
+  }
+
+  .report-frame {
+    grid-area: frame;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
+  }
+
+  .report-stage {
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  }
+
+  /* Pages share one cell and crossfade; hidden pages leave the accessibility tree. */
+  .report-page {
+    grid-area: 1 / 1;
+    min-width: 0;
+    transition:
+      opacity 380ms var(--ease-out),
+      visibility 0s linear 0s;
+  }
+
+  .report-page[data-active="false"] {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 380ms var(--ease-out),
+      visibility 0s linear 380ms;
+  }
+
+  .report-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .report-caption {
+    max-width: 60rem;
+    margin-top: 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--fg-subtle);
+  }
+
+  @media (min-width: 640px) {
+    .report-tabs {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .report-layout {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+      grid-template-areas: "tabs frame";
+      align-items: start;
+      gap: 1.5rem;
+    }
+
+    .report-tabs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* Sits under the page image, past the tab column. */
+    .report-caption {
+      margin-left: calc((100% - 1.5rem) * 3 / 12 + 1.5rem);
+    }
+  }
+
+  /* Analytics band ----------------------------------------------------------- */
+
+  .analytics-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgb(10 20 48 / 0.6) 14%,
+      rgb(10 20 48 / 0.6) 86%,
+      transparent
+    );
+  }
+
+  .analytics-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgb(120 150 220 / 0.075) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(120 150 220 / 0.075) 1px, transparent 1px);
+    background-size: 32px 32px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+  }
+
+  /* Credentials timeline -------------------------------------------------------- */
+
+  .cred-group + .cred-group {
+    margin-top: 3.5rem;
+  }
+
+  .cred-year {
+    margin-bottom: 1.25rem;
+    padding-left: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  .cred-list {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    padding-left: 2.5rem;
+  }
+
+  .cred-list::before {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: calc(0.75rem - 0.5px);
+    width: 1px;
+    background: linear-gradient(to bottom, var(--line-bright), var(--line) 85%, transparent);
+  }
+
+  .cred-item {
+    position: relative;
+  }
+
+  .cred-node {
+    position: absolute;
+    top: 1.75rem;
+    left: calc(-2.5rem + 0.75rem - 5px);
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--teal);
+    box-shadow:
+      0 0 0 4px var(--bg),
+      0 0 14px rgb(56 225 200 / 0.5);
+    transform: rotate(45deg);
+  }
+
+  .cred-item-muted .cred-node {
+    top: 0.65rem;
+    background: var(--bg);
+    box-shadow:
+      0 0 0 4px var(--bg),
+      inset 0 0 0 1.5px var(--fg-subtle);
+  }
+
+  .cred-card {
+    position: relative;
+    padding: 1.5rem 1.5rem 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: linear-gradient(180deg, rgb(16 24 38 / 0.6), rgb(8 12 19 / 0.45));
+    box-shadow: var(--shadow-card);
+    transition: border-color var(--dur-base) ease;
+  }
+
+  .cred-card:hover {
+    border-color: var(--line-strong);
+  }
+
+  @media (min-width: 640px) {
+    .cred-card {
+      padding: 1.75rem 2rem 1.5rem;
+    }
+  }
+
+  /* Contact ------------------------------------------------------------------- */
+
+  /* The glow fades out before the section ends, so there is no hard edge at the footer. */
+  .contact-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 50% 55% at 86% 42%, rgb(56 225 200 / 0.1), transparent 70%),
+      radial-gradient(ellipse 45% 50% at 10% 70%, rgb(166 140 255 / 0.09), transparent 70%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  }
+
+  .contact-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgb(148 163 184 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(148 163 184 / 0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 70% 60%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 70% at 70% 60%, #000 20%, transparent 75%);
+  }
+
+  .contact-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: 100%;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 0.95rem + 2.3vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: rgb(56 225 200 / 0.45);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+    transition:
+      color var(--dur-base) ease,
+      text-decoration-color var(--dur-base) ease;
+  }
+
+  .contact-email:hover {
+    color: var(--teal-strong);
+    text-decoration-color: currentColor;
+  }
+
+  .contact-email-arrow {
+    width: 0.7em;
+    height: 0.7em;
+    flex-shrink: 0;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .contact-email:hover .contact-email-arrow {
+    transform: translateX(4px);
+  }
+
+  .copy-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: rgb(11 17 27 / 0.55);
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    transition:
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  .copy-button:hover {
+    border-color: var(--line-bright);
+    color: var(--fg);
+  }
+
+  .copy-button:active {
+    transform: scale(var(--press-scale));
+  }
+
+  .copy-button[data-state="copied"] {
+    border-color: rgb(56 225 200 / 0.5);
+    color: var(--teal-strong);
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 0;
+  }
+
+  .contact-row-arrow {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: var(--fg-subtle);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      color var(--dur-base) ease;
+  }
+
+  .contact-row:hover .contact-row-arrow {
+    color: var(--teal);
+    transform: translate(2px, -2px);
+  }
+
+  .endpoint {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .endpoint-line {
+    fill: none;
+    stroke: rgb(148 163 184 / 0.3);
+    stroke-width: 1.2;
+    stroke-dasharray: 1;
+  }
+
+  .endpoint .map-packet {
+    stroke: var(--teal-strong);
+  }
+
+  .endpoint-halo {
+    fill: var(--teal);
+    opacity: 0.08;
+  }
+
+  .endpoint-ring {
+    fill: var(--bg);
+    stroke: var(--teal);
+    stroke-width: 1.3;
+  }
+
+  .endpoint-core {
+    fill: var(--fg);
+  }
+
+  .endpoint-pulse {
+    fill: none;
+    stroke: var(--teal);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: map-pulse 3.6s var(--ease-out) infinite 1s;
+  }
+}
+
+/* Motion ------------------------------------------------------------------------ */
+
+/* One-time arrival when a card is revealed. */
+[data-reveal-state="shown"] .flow-step,
+[data-reveal-state="shown"] .flow-inputs .chip {
+  animation: step-in 700ms var(--ease-out) backwards;
+  animation-delay: calc(300ms + var(--i, 0) * 110ms);
+}
+
+[data-reveal-state="shown"] .weight-fill {
+  animation: bar-grow 1000ms var(--ease-out) backwards;
+  animation-delay: calc(650ms + var(--i, 0) * 90ms);
+}
+
+[data-reveal-state="shown"] .shot-dashboard .shot-frame::after {
+  animation: scan 2s var(--ease-in-out) 500ms;
+}
+
+[data-reveal-state="shown"] .endpoint-line {
+  animation: map-draw 1600ms var(--ease-out) backwards;
+  animation-delay: calc(var(--order, 0) * 150ms);
+}
+
+[data-reveal-state="shown"] .flow-node {
+  animation: pop-in 600ms var(--ease-out) backwards;
+  animation-delay: calc(300ms + var(--i, 0) * 110ms);
+}
+
+/* While a card is hovered or holds focus, a signal relays through its steps. */
+:is([data-pointer="in"], [data-spotlight]:focus-within, .diagram:hover)
+  .flow-step:not(:last-child)::after {
+  animation: relay-y 5.6s linear infinite;
+  animation-delay: calc(var(--i, 0) * 0.7s);
+}
+
+:is([data-pointer="in"], [data-spotlight]:focus-within, .diagram:hover) .flow-marker {
+  animation: marker-flash 5.6s ease-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.7s);
+}
+
+:is([data-pointer="in"], [data-spotlight]:focus-within) .facet-item {
+  animation: facet-scan 5.6s ease-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.45s);
+}
+
+@container (min-width: 40rem) {
+  :is([data-pointer="in"], [data-spotlight]:focus-within, .diagram:hover)
+    .flow-steps[data-layout="rail"]
+    .flow-step:not(:last-child)::after {
+    animation-name: relay-x;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-step,
+  .flow-inputs .chip,
+  .flow-node,
+  .flow-marker,
+  .facet-item,
+  .weight-fill,
+  .endpoint-line,
+  .shot-dashboard .shot-frame::after {
+    animation: none !important;
+  }
+
+  .flow-step::after,
+  .endpoint .map-packet,
+  .endpoint-pulse {
+    display: none;
+  }
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes scan {
+  from {
+    opacity: 1;
+    transform: translateY(-55%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(55%);
+  }
+}
+
+/* 12.5% of 5.6s is 0.7s, the relay's step: each fill lands as the next marker lights. */
+@keyframes relay-y {
+  0% {
+    opacity: 1;
+    transform: scaleY(0);
+  }
+  12.5% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes relay-x {
+  0% {
+    opacity: 1;
+    transform: scaleX(0);
+  }
+  12.5% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  25%,
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes marker-flash {
+  0% {
+    scale: 1.7;
+  }
+  10%,
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes facet-scan {
+  0%,
+  6% {
+    border-color: rgb(56 225 200 / 0.55);
+    background-color: rgb(56 225 200 / 0.1);
+  }
+  16%,
+  100% {
+    border-color: var(--line);
+    background-color: rgb(255 255 255 / 0.025);
+  }
+}

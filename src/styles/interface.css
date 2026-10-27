@@ -1,0 +1,709 @@
+/*
+ * Interface components: header, navigation, buttons, cards, the mobile menu,
+ * and the command palette. Tokens come from :root in app/globals.css.
+ */
+
+@layer components {
+  /* Header ---------------------------------------------------------------- */
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--dur-base) ease,
+      border-color var(--dur-base) ease;
+  }
+
+  .site-header[data-scrolled] {
+    border-bottom-color: var(--line);
+    background-color: rgb(5 7 11 / 0.74);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .site-header[data-scrolled] {
+      background-color: rgb(5 7 11 / 0.96);
+    }
+  }
+
+  .scroll-progress {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .scroll-progress > span {
+    display: block;
+    height: 100%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background: linear-gradient(90deg, var(--teal), var(--violet));
+  }
+
+  .brand {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.625rem;
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+
+  .brand-mark {
+    width: 1.375rem;
+    height: 1.375rem;
+    color: var(--fg);
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .brand:hover .brand-mark {
+    transform: rotate(-14deg) scale(1.06);
+  }
+
+  /* Desktop navigation ------------------------------------------------------ */
+
+  .nav-track {
+    position: relative;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgb(11 17 27 / 0.62);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 2rem;
+    padding: 0 0.875rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    transition: color var(--dur-fast) ease;
+  }
+
+  .nav-link:hover,
+  .nav-link[aria-current="true"] {
+    color: var(--fg);
+  }
+
+  .nav-indicator {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: var(--w, 0px);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.07);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+    transform: translateX(var(--x, 0px));
+    transition:
+      transform 520ms var(--ease-out),
+      width 520ms var(--ease-out),
+      opacity var(--dur-base) ease;
+  }
+
+  /* The indicator's "signal" dot sits on the track's lower edge. */
+  .nav-indicator::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -7px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 10px 1px rgb(56 225 200 / 0.7);
+  }
+
+  .nav-indicator[data-visible="false"] {
+    opacity: 0;
+  }
+
+  .nav-external,
+  .palette-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2.625rem;
+    padding: 0 0.95rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgb(11 17 27 / 0.5);
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    transition:
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+
+  .nav-external:hover,
+  .palette-trigger:hover {
+    border-color: var(--line-strong);
+    background-color: var(--surface-2);
+    color: var(--fg);
+  }
+
+  .palette-trigger {
+    display: none;
+    gap: 0.5rem;
+    padding: 0 0.6rem 0 0.85rem;
+  }
+
+  @media (min-width: 1024px) {
+    .palette-trigger {
+      display: inline-flex;
+    }
+  }
+
+  .palette-trigger kbd,
+  .palette-footer kbd {
+    white-space: nowrap;
+    padding: 2px 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+  }
+
+  /* Mobile navigation ------------------------------------------------------ */
+
+  .menu-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    height: 2.625rem;
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: rgb(11 17 27 / 0.62);
+    font-size: 0.875rem;
+    color: var(--fg);
+  }
+
+  .menu-icon {
+    position: relative;
+    width: 14px;
+    height: 10px;
+  }
+
+  .menu-icon::before,
+  .menu-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    border-radius: 2px;
+    background: currentColor;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      top var(--dur-base) var(--ease-out);
+  }
+
+  .menu-icon::before {
+    top: 1px;
+  }
+
+  .menu-icon::after {
+    top: 7.5px;
+  }
+
+  .menu-icon[data-open="true"]::before {
+    top: 4.25px;
+    transform: rotate(45deg);
+  }
+
+  .menu-icon[data-open="true"]::after {
+    top: 4.25px;
+    transform: rotate(-45deg);
+  }
+
+  .mobile-panel {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    max-height: calc(100dvh - 4rem);
+    overflow-y: auto;
+    border-bottom: 1px solid var(--line-strong);
+    background: rgb(5 7 11 / 0.97);
+    box-shadow: 0 32px 48px -24px rgb(0 0 0 / 0.85);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    transition:
+      opacity var(--dur-base) var(--ease-out),
+      translate var(--dur-base) var(--ease-out),
+      display var(--dur-base) allow-discrete;
+  }
+
+  .mobile-panel[hidden] {
+    opacity: 0;
+    translate: 0 -8px;
+  }
+
+  @starting-style {
+    .mobile-panel:not([hidden]) {
+      opacity: 0;
+      translate: 0 -8px;
+    }
+  }
+
+  .mobile-item {
+    transition:
+      opacity 420ms var(--ease-out),
+      translate 420ms var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 45ms + 60ms);
+  }
+
+  @starting-style {
+    .mobile-panel:not([hidden]) .mobile-item {
+      opacity: 0;
+      translate: 0 10px;
+    }
+  }
+
+  .mobile-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--fg);
+  }
+
+  /* Buttons ---------------------------------------------------------------- */
+
+  .btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    height: 3rem;
+    padding: 0 1.4rem;
+    overflow: hidden;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      transform var(--dur-fast) var(--ease-out),
+      background-color var(--dur-base) ease,
+      border-color var(--dur-base) ease,
+      box-shadow var(--dur-base) ease,
+      color var(--dur-base) ease;
+  }
+
+  .btn:active {
+    transform: scale(var(--press-scale));
+  }
+
+  .btn-arrow {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+
+  .btn:hover .btn-arrow {
+    transform: translateX(3px);
+  }
+
+  .btn[target="_blank"]:hover .btn-arrow {
+    transform: translate(2px, -2px);
+  }
+
+  .btn-primary {
+    background-color: var(--teal);
+    color: var(--on-accent);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.35),
+      0 10px 28px -14px rgb(56 225 200 / 0.75);
+  }
+
+  /* A single sheen crosses the button on hover. */
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.5) 50%, transparent 70%);
+    transform: translateX(-130%);
+    transition: transform 750ms var(--ease-out);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--teal-strong);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.4),
+      0 0 0 4px rgb(56 225 200 / 0.14),
+      0 14px 34px -14px rgb(56 225 200 / 0.85);
+  }
+
+  .btn-primary:hover::before {
+    transform: translateX(130%);
+  }
+
+  .btn-secondary {
+    border: 1px solid var(--line-strong);
+    background-color: rgb(11 17 27 / 0.55);
+    color: var(--fg);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--line-bright);
+    background-color: var(--surface-2);
+  }
+
+  /* Text link with an arrow, used inside cards. */
+  .text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--fg);
+    text-decoration: underline;
+    text-decoration-color: var(--line-bright);
+    text-underline-offset: 5px;
+    transition:
+      color var(--dur-fast) ease,
+      text-decoration-color var(--dur-fast) ease;
+  }
+
+  .text-link:hover {
+    color: var(--teal-strong);
+    text-decoration-color: currentColor;
+  }
+
+  .text-link .btn-arrow {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .text-link:hover .btn-arrow {
+    transform: translate(2px, -2px);
+  }
+
+  /* Section headings -------------------------------------------------------- */
+
+  .section-index {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-strong), transparent);
+  }
+
+  /* Chips ------------------------------------------------------------------- */
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-chip);
+    background: rgb(255 255 255 / 0.025);
+    font-family: var(--font-mono);
+    font-size: 0.71875rem;
+    color: var(--fg-muted);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .badge-solo {
+    border: 1px solid var(--line-strong);
+    color: var(--fg-muted);
+  }
+
+  .badge-team {
+    border: 1px solid rgb(166 140 255 / 0.4);
+    background: rgb(166 140 255 / 0.1);
+    color: var(--violet-strong);
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Pointer-lit surfaces ------------------------------------------------------ */
+
+  [data-spotlight] {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /* A wash of light follows the pointer across the surface... */
+  [data-spotlight]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      560px circle at var(--mx, 50%) var(--my, 50%),
+      rgb(56 225 200 / 0.065),
+      transparent 45%
+    );
+    transition: opacity 500ms ease;
+  }
+
+  /* ...and lights the nearest stretch of the border. */
+  [data-spotlight]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      380px circle at var(--mx, 50%) var(--my, 50%),
+      rgb(56 225 200 / 0.55),
+      rgb(166 140 255 / 0.25) 30%,
+      transparent 55%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    transition: opacity 500ms ease;
+  }
+
+  [data-spotlight][data-pointer="in"]::before,
+  [data-spotlight][data-pointer="in"]::after {
+    opacity: 1;
+  }
+
+  /* Command palette ---------------------------------------------------------- */
+
+  .palette {
+    width: min(40rem, calc(100% - 2rem));
+    max-width: none;
+    max-height: min(34rem, calc(100dvh - 8rem));
+    margin: 12vh auto auto;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    color: var(--fg);
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 220ms var(--ease-out),
+      transform 220ms var(--ease-out),
+      display 220ms allow-discrete,
+      overlay 220ms allow-discrete;
+  }
+
+  .palette:not([open]) {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  @starting-style {
+    .palette[open] {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.98);
+    }
+  }
+
+  .palette::backdrop {
+    background: rgb(2 4 8 / 0.72);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    transition:
+      opacity 220ms ease,
+      display 220ms allow-discrete,
+      overlay 220ms allow-discrete;
+  }
+
+  .palette:not([open])::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    .palette[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  .palette-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    border-radius: 1.25rem;
+    background: linear-gradient(180deg, rgb(22 33 51 / 0.96), rgb(11 17 27 / 0.98));
+    box-shadow: var(--shadow-lift);
+  }
+
+  .palette-search {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.75rem;
+    height: 3.5rem;
+    padding: 0 0.75rem 0 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .palette-search:focus-within {
+    box-shadow: inset 0 -1px 0 var(--teal);
+  }
+
+  .palette-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--fg);
+    outline: none;
+  }
+
+  .palette-search input::placeholder {
+    color: var(--fg-subtle);
+  }
+
+  .palette-esc {
+    padding: 3px 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-muted);
+  }
+
+  .palette-esc:hover {
+    color: var(--fg);
+  }
+
+  .palette-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  .palette-group {
+    padding: 0.75rem 0.75rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+
+  .palette-option {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+  }
+
+  .palette-option[aria-selected="true"] {
+    background: rgb(56 225 200 / 0.09);
+    box-shadow: inset 0 0 0 1px rgb(56 225 200 / 0.24);
+    color: var(--fg);
+  }
+
+  .palette-hint {
+    font-size: 0.8125rem;
+    color: var(--fg-subtle);
+  }
+
+  .palette-go {
+    color: var(--fg-subtle);
+  }
+
+  .palette-option[aria-selected="true"] .palette-go {
+    color: var(--teal);
+  }
+
+  .palette-footer {
+    display: flex;
+    flex-shrink: 0;
+    gap: 1.25rem;
+    padding: 0.625rem 1rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem;
+    color: var(--fg-subtle);
+  }
+
+  .palette-footer kbd {
+    margin-right: 0.25rem;
+    padding: 1px 5px;
+  }
+}
+
+/* Tilt follows the pointer only where it can be done comfortably. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  [data-tilt] {
+    transform: perspective(1400px) rotateX(calc(var(--ty, 0) * -4deg))
+      rotateY(calc(var(--tx, 0) * 5deg));
+    transition: transform 700ms var(--ease-out);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary::before {
+    display: none;
+  }
+}

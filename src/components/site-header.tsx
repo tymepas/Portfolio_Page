@@ -1,48 +1,46 @@
 import Link from "next/link";
+import { CommandPalette } from "@/components/command-palette";
 import { Container } from "@/components/container";
+import { HeaderShell } from "@/components/header-shell";
 import { MobileNav } from "@/components/mobile-nav";
-import { githubUrl, navItems, site } from "@/content/site";
+import { PrimaryNav } from "@/components/primary-nav";
+import { getPaletteCommands } from "@/content/commands";
+import { contactLinks, githubUrl, navItems, site } from "@/content/site";
+
+/** Three connected nodes: the system-map motif at its smallest. */
+function BrandMark() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="brand-mark" fill="none">
+      <path d="M6 17.5 12 6.5l6 11H6Z" stroke="currentColor" strokeOpacity="0.35" strokeWidth="1.25" />
+      <circle cx="12" cy="6.5" r="2.5" fill="var(--violet)" />
+      <circle cx="6" cy="17.5" r="2.5" fill="var(--teal)" />
+      <circle cx="18" cy="17.5" r="2.5" fill="var(--fg)" />
+    </svg>
+  );
+}
 
 export function SiteHeader() {
+  const email = contactLinks.find((link) => link.label === "Email");
+
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-sm supports-[backdrop-filter]:bg-paper/80">
-      <Container className="flex h-16 items-center justify-between gap-6">
-        <Link
-          href="/"
-          className="font-display text-xl tracking-tight text-ink transition-colors hover:text-accent"
-        >
-          {site.name}
+    <HeaderShell>
+      <Container className="flex h-16 items-center justify-between gap-4">
+        <Link href="/" className="brand">
+          <BrandMark />
+          <span>{site.name}</span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center gap-8 text-sm">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="text-muted transition-colors hover:text-ink"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <a
-                href={githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-full border border-line-strong px-3.5 py-1.5 text-ink transition-colors hover:border-ink"
-              >
-                GitHub
-                <span aria-hidden="true">↗</span>
-                <span className="sr-only">(opens in a new tab)</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-        <MobileNav items={navItems} githubUrl={githubUrl} />
+        <div className="flex items-center gap-2">
+          <PrimaryNav items={navItems} githubUrl={githubUrl} />
+          {/* The trigger shows from md up; the shortcut and dialog work at every width. */}
+          <CommandPalette commands={getPaletteCommands()} />
+          <MobileNav
+            items={navItems}
+            githubUrl={githubUrl}
+            email={{ href: email?.href ?? "", display: email?.display ?? "" }}
+          />
+        </div>
       </Container>
-    </header>
+    </HeaderShell>
   );
 }

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Newsreader } from "next/font/google";
+import { Geist, Geist_Mono, Hubot_Sans } from "next/font/google";
+import { Suspense } from "react";
+import { InteractionLayer } from "@/components/interaction-layer";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/content/site";
@@ -15,10 +17,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
+// Display face. The width axis lets headings run slightly expanded.
+const hubotSans = Hubot_Sans({
+  variable: "--font-hubot-sans",
   subsets: ["latin"],
-  style: ["normal", "italic"],
+  axes: ["wdth"],
 });
 
 export const metadata: Metadata = {
@@ -33,19 +36,20 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f8f7f3",
+  themeColor: "#05070b",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${hubotSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:rounded-full focus:bg-teal focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-on-accent"
         >
           Skip to content
         </a>
@@ -54,6 +58,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <SiteFooter />
+        {/* Reads the pathname, so it sits behind a boundary for routes with unknown params. */}
+        <Suspense fallback={null}>
+          <InteractionLayer />
+        </Suspense>
       </body>
     </html>
   );

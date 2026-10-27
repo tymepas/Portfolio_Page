@@ -3,10 +3,12 @@
 Personal portfolio for Garvit Mathur, presenting work across AI-powered
 applications, data analytics, and product-focused software development.
 
-The site is built as a single, content-driven homepage. Every project,
-credential, and profile detail is kept in typed local data files and is checked
-against its source (project repositories, live demo URLs, or original
-documents) before it is published.
+The site is a single, content-driven homepage with a dark "AI engineering lab"
+visual identity: an animated system map, a conceptual workflow, and an
+architecture diagram for each project. Every project, credential, and profile
+detail is kept in typed local data files and is checked against its source
+(project repositories, live demo URLs, or original documents) before it is
+published.
 
 ## Technology Stack
 
@@ -14,13 +16,15 @@ documents) before it is published.
 - [React](https://react.dev) 19
 - [TypeScript](https://www.typescriptlang.org) 5
 - [Tailwind CSS](https://tailwindcss.com) 4, compiled through `@tailwindcss/turbopack`
-- `next/font` for self-hosted Geist, Geist Mono, and Newsreader fonts
+- `next/font` for self-hosted Geist, Geist Mono, and Hubot Sans fonts
+- `next/image` for the project screenshots
 - ESLint 9 with `eslint-config-next`
 - npm for package management
 
-There is no database, authentication, or backend. Pages are server-rendered and
-prerendered as static content; the only client-side component is the mobile
-navigation menu.
+There is no database, authentication, backend, or animation library. Pages are
+prerendered as static content. Animation is CSS-first: the hero entrance runs on
+first paint, before JavaScript loads, and a few small Client Components add
+behaviour that needs the browser (see [Motion and interaction](#motion-and-interaction)).
 
 ## Getting Started
 
@@ -49,24 +53,59 @@ Then open <http://localhost:3000>.
 
 Run `npm run lint` and `npm run build` before committing changes.
 
+`next dev` allows one dev server per checkout. To preview a production build
+alongside a running dev server, use the `next-start` configuration in
+`.claude/launch.json` (port 3100) after `npm run build`.
+
 ## Project Structure
 
 ```text
+public/images/projects/  Authentic screenshots from the project repositories
 src/
 ├── app/
 │   ├── layout.tsx       Root layout: fonts, metadata, header, footer
 │   ├── page.tsx         Homepage composition
-│   └── globals.css      Tailwind CSS 4 theme tokens and base styles
-├── components/          Reusable UI and homepage sections
-└── content/
-    ├── site.ts          Profile, navigation, focus areas, contact links
-    ├── projects.ts      Featured AI projects and analytics work
-    └── credentials.ts   Credentials and professional development
+│   └── globals.css      Design tokens, Tailwind theme, base styles, reveals
+├── components/          Homepage sections and shared UI
+│   └── visuals/         System map, conceptual workflow, project diagrams
+├── content/
+│   ├── site.ts          Profile, hero copy, navigation, focus areas, contact links
+│   ├── projects.ts      Projects, their architecture diagrams, and screenshots
+│   ├── credentials.ts   Credentials and professional development
+│   ├── workflow.ts      The conceptual workflow shown in the hero
+│   └── commands.ts      Command palette entries, derived from the files above
+├── lib/                 Small browser helpers
+└── styles/              Component styles: interface, hero, and visuals
 ```
 
-Design tokens (colors and font families) are defined in the `@theme` block of
-`src/app/globals.css`. Tailwind CSS 4 is configured in CSS, so there is no
+## Design System
+
+Tokens live on `:root` in `src/app/globals.css` and are mapped to Tailwind
+utilities with `@theme inline` (for example `bg-surface`, `text-muted`,
+`border-line`, `text-teal`). Tailwind CSS 4 is configured in CSS, so there is no
 `tailwind.config.js`.
+
+- **Surfaces:** near-black (`--bg`) lifting through charcoal to midnight blue.
+- **Type:** Hubot Sans for display, Geist for body text, Geist Mono for labels.
+- **Accents carry meaning.** Violet marks model-driven steps. Teal marks data,
+  deterministic checks, people, and interaction. Diagrams also show each step's
+  kind as text and marker shape, so colour is never the only signal.
+
+## Motion and Interaction
+
+- **Server first.** Sections are Server Components. They opt into behaviour with
+  data attributes (`data-reveal`, `data-loop`, `data-spotlight`, `data-tilt`),
+  which one Client Component, `InteractionLayer`, enhances.
+- **Reveals never hide server HTML.** Content renders visible; only elements
+  still below the fold after hydration are hidden and revealed on scroll.
+- **Loops pause off screen.** Continuous animations (packets, pulses, the
+  workflow relay) stop while their container is not visible.
+- **Other client components:** the header shell (reading progress), the
+  desktop navigation (current-section indicator), the mobile menu, the command
+  palette (`Ctrl+K` / `Cmd+K`), the system map's pointer response, the report
+  page viewer, and the copy-email button.
+- **Reduced motion.** With `prefers-reduced-motion`, entrances, loops, parallax,
+  and tilt are removed; all content and interactions remain.
 
 ## Editing Content
 
@@ -78,6 +117,14 @@ Portfolio content lives in `src/content/`. When adding or changing entries:
 - Do not publish metrics, results, or claims that the source does not support.
 - Do not add private documents, certificate identifiers, verification codes, or
   personal contact details beyond the approved public links.
+- Architecture diagrams are drawn from code. Each `diagram` in `projects.ts`
+  names its source files; update the diagram when the code changes.
+- Screenshots must come from the project itself and are labelled as
+  screenshots. Diagrams are never presented as screenshots.
+- Report previews (`preview` in `projects.ts`) use the project's own screenshot
+  or PDF export pages, labelled as static. Link the PDF export with `report`;
+  never describe it as an interactive or hosted report, and keep large source
+  files such as `.pbix` out of this repository.
 
 Contributor and agent guidelines are in [`CLAUDE.md`](CLAUDE.md) and
 [`AGENTS.md`](AGENTS.md).
@@ -88,12 +135,16 @@ In active development on the `feature/portfolio-foundation` branch.
 
 Implemented:
 
-- Responsive navigation with an accessible mobile menu
-- Introduction and areas of focus
-- Featured AI projects, with individual and team work labelled
-- Analytics work
-- Credentials and professional development
-- Contact links
+- Dark AI-engineering-lab visual system with responsive navigation, a
+  current-section indicator, and an accessible mobile menu
+- Hero with kinetic headline, interactive system map, and conceptual workflow
+- Featured AI projects with architecture diagrams, individual and team work
+  labelled
+- Analytics work: the six-page India General Election 2024 Power BI report,
+  shown through its own pages with the PDF export linked, and the World
+  Indicators dashboard with its data pipeline
+- Credentials timeline and contact section
+- Command palette for quick navigation
 
 Planned for later milestones:
 
@@ -102,5 +153,13 @@ Planned for later milestones:
 - Professional experience
 - About and education
 - Resume link
+- Vercel deployment
 
-Deployment to Vercel is planned and has not been set up yet.
+### Future possibility: "Ask My Portfolio"
+
+An assistant that answers questions about Garvit's verified projects,
+experience, skills, and credentials from curated content. It is not
+implemented and no AI API is integrated. If approved later, it must use
+server-side API access with credentials in environment variables (never
+`NEXT_PUBLIC_`), validated inputs, rate limiting, usage controls, and cost
+limits.

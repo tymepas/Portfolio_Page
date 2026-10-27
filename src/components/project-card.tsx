@@ -1,112 +1,260 @@
+import type { CSSProperties } from "react";
+import { ProjectDiagramView, ProjectScreenshotFigure } from "@/components/visuals/project-visual";
 import type { Project, ProjectLink } from "@/content/projects";
 
 type ProjectCardProps = {
   project: Project;
-  index?: number;
+  index: number;
+  total: number;
 };
 
-function ExternalLink({ link, projectTitle }: { link: ProjectLink; projectTitle: string }) {
+type ProjectHeaderProps = {
+  project: Project;
+  /** Position within a numbered set, shown as "01 / 04". Omit to hide. */
+  position?: { index: number; total: number };
+};
+
+function ArrowUpRight() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true" className="btn-arrow" fill="none">
+      <path
+        d="M5 11 11 5M6 5h5v5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ExternalLink({
+  link,
+  projectTitle,
+  prominent = false,
+}: {
+  link: ProjectLink;
+  projectTitle: string;
+  prominent?: boolean;
+}) {
   return (
     <a
       href={link.href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 text-sm font-medium text-accent underline decoration-accent/30 underline-offset-4 transition-colors hover:text-accent-strong hover:decoration-accent-strong"
+      className={prominent ? "btn btn-secondary btn-compact" : "text-link"}
     >
-      {link.label}
+      <span>{link.label}</span>
+      <ArrowUpRight />
       <span className="sr-only">
         {" "}
         for {projectTitle} (opens in a new tab)
       </span>
-      <span aria-hidden="true">↗</span>
     </a>
   );
 }
 
-export function ProjectCard({ project, index }: ProjectCardProps) {
-  const headingId = `project-${project.slug}`;
+export function ContributionBadge({ project }: { project: Project }) {
   const collaborators = project.collaborators ?? [];
-  const isCollaborative = collaborators.length > 0;
+  if (collaborators.length > 0) {
+    return (
+      <span className="badge badge-team">
+        <span aria-hidden="true" className="badge-dot" />
+        Team project · with {collaborators.join(", ")}
+      </span>
+    );
+  }
+  return <span className="badge badge-solo">Individual project</span>;
+}
 
+export function ProjectHighlights({
+  project,
+  className = "space-y-3",
+}: {
+  project: Project;
+  className?: string;
+}) {
   return (
-    <article
-      aria-labelledby={headingId}
-      className="flex h-full flex-col rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-line-strong sm:p-8"
-    >
-      <div className="flex items-baseline justify-between gap-4 font-mono text-xs tracking-[0.12em] uppercase">
-        <span className="text-accent">{project.category}</span>
-        {index !== undefined ? (
-          <span aria-hidden="true" className="text-subtle">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-        ) : null}
-      </div>
+    <ul className={`text-[0.9375rem] leading-relaxed text-fg/90 ${className}`}>
+      {project.highlights.map((highlight) => (
+        <li key={highlight} className="grid grid-cols-[1.125rem_1fr] gap-1">
+          <span aria-hidden="true" className="mt-[0.7rem] block h-px w-2.5 bg-teal" />
+          <span>{highlight}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
-      <h3 id={headingId} className="mt-5 font-display text-3xl tracking-tight text-ink">
-        {project.title}
-      </h3>
+function ProjectFacts({ project }: { project: Project }) {
+  if (!project.role && !project.context) return null;
+  return (
+    <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t border-line pt-5 text-sm">
+      {project.role ? (
+        <>
+          <dt className="font-mono text-[0.6875rem] leading-5 tracking-[0.12em] text-subtle uppercase">
+            My role
+          </dt>
+          <dd className="text-fg">{project.role}</dd>
+        </>
+      ) : null}
+      {project.context ? (
+        <>
+          <dt className="font-mono text-[0.6875rem] leading-5 tracking-[0.12em] text-subtle uppercase">
+            Context
+          </dt>
+          <dd className="text-muted">{project.context}</dd>
+        </>
+      ) : null}
+    </dl>
+  );
+}
 
-      <p className="mt-3">
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
-            isCollaborative
-              ? "border border-accent/30 bg-accent-soft text-accent-strong"
-              : "border border-line bg-paper text-muted"
-          }`}
-        >
-          {isCollaborative
-            ? `Team project · with ${collaborators.join(", ")}`
-            : "Individual project"}
-        </span>
-      </p>
-
-      <p className="mt-3 leading-relaxed text-muted">{project.summary}</p>
-
-      <ul className="mt-6 space-y-2.5 text-sm leading-relaxed text-ink">
-        {project.highlights.map((highlight) => (
-          <li key={highlight} className="grid grid-cols-[1rem_1fr] gap-1">
-            <span aria-hidden="true" className="mt-2.5 block h-px w-2.5 bg-accent" />
-            <span>{highlight}</span>
+export function ProjectStack({ project, className = "mt-6" }: { project: Project; className?: string }) {
+  return (
+    <>
+      <h4 className="sr-only">Technologies</h4>
+      <ul className={`flex flex-wrap gap-1.5 ${className}`}>
+        {project.stack.map((tech) => (
+          <li key={tech} className="chip">
+            {tech}
           </li>
         ))}
       </ul>
+    </>
+  );
+}
 
-      <div className="mt-auto pt-8">
-        <h4 className="sr-only">Technologies</h4>
-        <ul className="flex flex-wrap gap-1.5">
-          {project.stack.map((tech) => (
-            <li
-              key={tech}
-              className="rounded-md border border-line bg-paper px-2 py-1 font-mono text-[0.7rem] text-muted"
-            >
-              {tech}
-            </li>
-          ))}
-        </ul>
+/** A live app or a static export gets the button; the repository is a text link. */
+export function ProjectLinks({ project, className = "mt-8" }: { project: Project; className?: string }) {
+  return (
+    <div className={`flex flex-wrap items-center gap-x-6 gap-y-3 ${className}`}>
+      {project.demo ? (
+        <ExternalLink link={project.demo} projectTitle={project.title} prominent />
+      ) : null}
+      {project.report ? (
+        <ExternalLink link={project.report} projectTitle={project.title} prominent={!project.demo} />
+      ) : null}
+      <ExternalLink link={project.repository} projectTitle={project.title} />
+    </div>
+  );
+}
 
-        {project.role || project.context ? (
-          <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 border-t border-line pt-5 text-sm">
-            {project.role ? (
-              <>
-                <dt className="text-subtle">My role</dt>
-                <dd className="text-ink">{project.role}</dd>
-              </>
-            ) : null}
-            {project.context ? (
-              <>
-                <dt className="text-subtle">Context</dt>
-                <dd className="text-ink">{project.context}</dd>
-              </>
-            ) : null}
-          </dl>
+export function ProjectDetails({ project }: { project: Project }) {
+  return (
+    <>
+      <ProjectHighlights project={project} />
+      <ProjectFacts project={project} />
+      <ProjectStack project={project} />
+      <ProjectLinks project={project} />
+    </>
+  );
+}
+
+/** Category, position in the set, and the project's heading. */
+export function ProjectTitle({ project, position }: ProjectHeaderProps) {
+  return (
+    <>
+      <div className="flex items-baseline justify-between gap-4 font-mono text-label uppercase">
+        <span className="text-muted">{project.category}</span>
+        {position ? (
+          <span aria-hidden="true" className="text-subtle">
+            <span className="text-teal">{String(position.index + 1).padStart(2, "0")}</span> /{" "}
+            {String(position.total).padStart(2, "0")}
+          </span>
         ) : null}
+      </div>
+      <h3
+        id={`project-${project.slug}`}
+        className="mt-5 font-display text-title font-semibold text-balance-safe text-fg"
+      >
+        {project.title}
+      </h3>
+    </>
+  );
+}
 
-        <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
-          <ExternalLink link={project.repository} projectTitle={project.title} />
-          {project.demo ? (
-            <ExternalLink link={project.demo} projectTitle={project.title} />
-          ) : null}
+export function ProjectHeader({ project, position }: ProjectHeaderProps) {
+  return (
+    <>
+      <ProjectTitle project={project} position={position} />
+      <p className="mt-4">
+        <ContributionBadge project={project} />
+      </p>
+      <p className="mt-5 text-[1.0625rem] leading-relaxed text-muted">{project.summary}</p>
+    </>
+  );
+}
+
+/*
+ * Both layouts place the header, visual, and details in named grid areas. On
+ * small screens the header always comes first, so a diagram is never shown
+ * before the reader knows which project it belongs to.
+ */
+
+/**
+ * A large, two-column presentation: the architecture diagram (and any
+ * authentic screenshot) beside the project details. `reverse` swaps sides.
+ */
+export function ProjectFeature({
+  project,
+  index,
+  total,
+  reverse = false,
+}: ProjectCardProps & { reverse?: boolean }) {
+  const figure = String(index + 1).padStart(2, "0");
+
+  return (
+    <article
+      id={project.slug}
+      aria-labelledby={`project-${project.slug}`}
+      data-spotlight=""
+      data-reveal=""
+      data-reverse={reverse ? "" : undefined}
+      className="project-card project-feature"
+    >
+      <div className="project-head">
+        <ProjectHeader project={project} position={{ index, total }} />
+      </div>
+      <div className="project-visual flex flex-col gap-6" data-tilt="">
+        {project.diagram ? <ProjectDiagramView diagram={project.diagram} figure={figure} /> : null}
+        {project.screenshot ? (
+          <ProjectScreenshotFigure
+            screenshot={project.screenshot}
+            sizes="(min-width: 1024px) 55vw, 100vw"
+          />
+        ) : null}
+      </div>
+      <div className="project-body">
+        <ProjectDetails project={project} />
+      </div>
+    </article>
+  );
+}
+
+/** A compact presentation: diagram on top on wide screens, details below. */
+export function ProjectCard({ project, index, total }: ProjectCardProps) {
+  const figure = String(index + 1).padStart(2, "0");
+
+  return (
+    <article
+      id={project.slug}
+      aria-labelledby={`project-${project.slug}`}
+      data-spotlight=""
+      data-reveal=""
+      style={{ "--reveal-delay": `${(index % 2) * 120}ms` } as CSSProperties}
+      className="project-card project-compact h-full"
+    >
+      <div className="project-head">
+        <ProjectHeader project={project} position={{ index, total }} />
+      </div>
+      {project.diagram ? (
+        <div className="project-visual">
+          <ProjectDiagramView diagram={project.diagram} figure={figure} />
         </div>
+      ) : null}
+      <div className="project-body">
+        <ProjectDetails project={project} />
       </div>
     </article>
   );
