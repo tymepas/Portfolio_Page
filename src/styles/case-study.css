@@ -1403,9 +1403,11 @@
     color: var(--fg);
   }
 
+  /* Unscored: the scored rows' selected treatment in neutral white, not teal. It
+     must differ from the hover state, or a click shows no change under the pointer. */
   .rule-row[data-scored="false"] .rule-option input:checked + span {
-    border-color: var(--line-bright);
-    background: rgb(255 255 255 / 0.06);
+    border-color: rgb(242 245 249 / 0.6);
+    background: rgb(242 245 249 / 0.12);
   }
 
   .rule-points {

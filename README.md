@@ -50,8 +50,9 @@ Then open <http://localhost:3000>.
 | `npm run build` | Create an optimized production build |
 | `npm run start` | Serve the production build (run `npm run build` first) |
 | `npm run lint` | Run ESLint across the project |
+| `npm test` | Run the unit tests with Node's test runner (Node 22.18 or later) |
 
-Run `npm run lint` and `npm run build` before committing changes.
+Run `npm run lint`, `npm test`, and `npm run build` before committing changes.
 
 `next dev` allows one dev server per checkout. To preview a production build
 alongside a running dev server, use the `next-start` configuration in

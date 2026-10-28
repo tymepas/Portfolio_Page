@@ -197,9 +197,9 @@ export function ProjectHeader({ project, position }: ProjectHeaderProps) {
 }
 
 /*
- * Both layouts place the header, visual, and details in named grid areas. On
- * small screens the header always comes first, so a diagram is never shown
- * before the reader knows which project it belongs to.
+ * Both layouts place the header, visual, and details in named grid areas. The
+ * header is never placed below the diagram, so a diagram is never shown before
+ * the reader knows which project it belongs to.
  */
 
 /**
@@ -242,7 +242,7 @@ export function ProjectFeature({
   );
 }
 
-/** A compact presentation: diagram on top on wide screens, details below. */
+/** A compact presentation, at every width: the header, then the diagram, then the details. */
 export function ProjectCard({ project, index, total }: ProjectCardProps) {
   const figure = String(index + 1).padStart(2, "0");
 

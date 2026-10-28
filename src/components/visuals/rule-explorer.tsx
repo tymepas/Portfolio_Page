@@ -1,9 +1,8 @@
 "use client";
 
 import { useId, useState, type CSSProperties, type ReactNode } from "react";
-import type { VerdictDimension, VerdictRating } from "@/content/case-studies/verdict";
-
-type Threshold = { min: number; verdict: string };
+import type { VerdictRating } from "@/content/case-studies/verdict";
+import { computeVerdict, type VerdictRule } from "@/lib/verdict-score";
 
 type Preset = {
   id: string;
@@ -12,12 +11,7 @@ type Preset = {
   ratings: Record<string, VerdictRating>;
 };
 
-type RuleExplorerProps = {
-  dimensions: VerdictDimension[];
-  points: Record<string, number>;
-  /** Highest first; the first one the score reaches wins. */
-  thresholds: Threshold[];
-  fallbackVerdict: string;
+type RuleExplorerProps = VerdictRule & {
   presets: Preset[];
   /** A link to the code this mirrors. */
   source: ReactNode;
@@ -28,37 +22,6 @@ const RATINGS: VerdictRating[] = ["Excellent", "Good", "Fair", "Poor", "Unable t
 // Ratings score 2 to 5, so every weighted score lands in this range.
 const SCALE_MIN = 2;
 const SCALE_MAX = 5;
-
-/**
- * The same arithmetic as computeVerdict in Verdict's analysisService.ts, in
- * the same order, so it rounds identically: a weighted mean of the scored
- * ratings, skipping "Unable to Evaluate", rounded to one decimal place.
- */
-function computeVerdict(
-  ratings: Record<string, VerdictRating>,
-  { dimensions, points, thresholds, fallbackVerdict }: Omit<RuleExplorerProps, "presets" | "source">,
-) {
-  let weightedSum = 0;
-  let weightTotal = 0;
-  const terms: string[] = [];
-
-  for (const dimension of dimensions) {
-    const rating = ratings[dimension.key];
-    if (dimension.weight === null || rating === "Unable to Evaluate") continue;
-    weightedSum += points[rating] * dimension.weight;
-    weightTotal += dimension.weight;
-    terms.push(`${dimension.weight.toFixed(2)} × ${points[rating]}`);
-  }
-
-  if (weightTotal === 0) {
-    return { scored: false as const, score: 0, verdict: fallbackVerdict };
-  }
-
-  const raw = weightedSum / weightTotal;
-  const score = Math.round(raw * 10) / 10;
-  const verdict = thresholds.find((threshold) => score >= threshold.min)?.verdict ?? fallbackVerdict;
-  return { scored: true as const, score, raw, verdict, terms, weightTotal };
-}
 
 /** A band's score range. Scores are rounded to one decimal place first. */
 function rangeText(from: number, to: number) {

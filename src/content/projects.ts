@@ -267,10 +267,12 @@ export const featuredProjects: Project[] = [
       layout: "column",
       inputs: ["Your text", "Optional profile, kept in the browser"],
       steps: [
+        // Checked 29 Oct 2026 at commit 0a1f35e: only Tone, Rewrite, Paraphrase, Summarize,
+        // and Expand / Shorten have their own controls (frontend/src/components/TabOptions.jsx).
         {
           kind: "service",
           label: "React interface",
-          detail: "Ten modes, each with its own options",
+          detail: "Ten modes; five have their own options",
         },
         {
           kind: "service",
@@ -350,7 +352,9 @@ export const featuredProjects: Project[] = [
           { name: "Decision" },
           { name: "Reason" },
           { name: "Actions" },
-          { name: "Sources", note: "Filtered in code to retrieved documents" },
+          // Checked 29 Oct 2026 at commit 306366e: lib/rag.ts keeps only the source names of the
+          // retrieved documents, plus "Live AQI" when live data was supplied to the model.
+          { name: "Sources", note: "Filtered in code to supplied sources" },
         ],
       },
     },

@@ -32,7 +32,7 @@ export function FeaturedProjects() {
                 />
               </li>
             ) : (
-              <li key={project.slug}>
+              <li key={project.slug} className="lg:row-span-3 lg:grid lg:grid-rows-subgrid">
                 <ProjectCard project={project} index={index} total={total} />
               </li>
             ),

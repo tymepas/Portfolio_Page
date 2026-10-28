@@ -72,9 +72,16 @@
       padding-top: 0.5rem;
     }
 
+    /* Side by side, compact cards share their rows through the list item's
+       subgrid, so the headers, diagrams, and details line up across the pair.
+       The shorter diagram's frame fills its row, so both frames end level. */
     .project-compact {
-      grid-template-rows: auto auto 1fr;
-      grid-template-areas: "visual" "head" "body";
+      grid-row: span 3;
+      grid-template-rows: subgrid;
+    }
+
+    .project-compact .project-visual {
+      display: grid;
     }
   }
 
