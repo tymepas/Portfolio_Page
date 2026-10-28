@@ -21,6 +21,8 @@ export const site = {
   title: "Garvit Mathur — Project Manager, Analytics & AI",
   description:
     "Portfolio of Garvit Mathur, a project manager in market research operations who builds analytics dashboards and AI applications with LLM APIs, structured outputs, and agentic workflows.",
+  /** Production origin, used for absolute URLs in the sitemap and robots.txt. */
+  url: "https://garvit-portfolio-seven.vercel.app",
 } as const;
 
 export type HeadlineWord = {
