@@ -1295,6 +1295,12 @@
     gap: 1.75rem;
   }
 
+  /* A hidden-overflow frame is a scroll container, which would pin the sticky
+     score panel to the frame instead of the window. Clip trims the same edges. */
+  .diagram:has(.rule) {
+    overflow: clip;
+  }
+
   @container (min-width: 52rem) {
     .rule {
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
@@ -1302,9 +1308,11 @@
       gap: 2.5rem;
     }
 
+    /* Centred on the rating column, then held in view while it scrolls past. */
     .rule-output {
       position: sticky;
       top: 6rem;
+      align-self: center;
     }
   }
 
@@ -1403,11 +1411,31 @@
     color: var(--fg);
   }
 
-  /* Unscored: the scored rows' selected treatment in neutral white, not teal. It
-     must differ from the hover state, or a click shows no change under the pointer. */
+  /* A check badge on the top edge of the selected option, so the choice reads
+     without relying on colour. The label is its containing block. */
+  .rule-option input:checked + span::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--teal)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2.2 5.3 4.2 7.2 7.9 3' fill='none' stroke='%2305070b' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / 10px no-repeat;
+    pointer-events: none;
+  }
+
+  /* Unscored: a solid neutral selection, never teal, so it can't read as part of
+     the score. The solid border and fill keep it distinct from the hover outline. */
   .rule-row[data-scored="false"] .rule-option input:checked + span {
-    border-color: rgb(242 245 249 / 0.6);
-    background: rgb(242 245 249 / 0.12);
+    border-color: var(--fg);
+    background: rgb(242 245 249 / 0.16);
+  }
+
+  .rule-row[data-scored="false"] .rule-option input:checked + span::after {
+    background-color: var(--fg);
   }
 
   .rule-points {
